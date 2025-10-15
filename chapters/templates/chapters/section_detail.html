@@ -1,0 +1,13 @@
+{% extends 'chapters/base.html' %}
+
+{% block title %}{{ section.title }} - Cisco Networking Academy{% endblock %}
+
+{% block content %}
+<div class="content">
+    <h2>{{ section.code }} {{ section.title }}</h2>
+    <div class="section-content">
+        {{ section.content|linebreaks }}
+    </div>
+    <a href="{% url 'chapter_detail' section.chapter.id %}">← Назад к главе</a>
+</div>
+{% endblock %}
