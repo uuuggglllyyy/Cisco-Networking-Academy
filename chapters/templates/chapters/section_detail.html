@@ -3,11 +3,43 @@
 {% block title %}{{ section.title }} - Cisco Networking Academy{% endblock %}
 
 {% block content %}
+<nav class="breadcrumb">
+    <a href="{% url 'module_list' %}">Модули</a> →
+    <a href="{% url 'module_detail' section.chapter.module.id %}">Модуль {{ section.chapter.module.number }}</a> →
+    <a href="{% url 'chapter_detail' section.chapter.module.id section.chapter.id %}">Глава {{ section.chapter.number }}</a> →
+    <span>{{ section.code }}</span>
+</nav>
+
 <div class="content">
-    <h2>{{ section.code }} {{ section.title }}</h2>
+    <!-- Заголовок раздела -->
+    <header class="section-header">
+        <h1>{{ section.code }} {{ section.title }}</h1>
+        {% if section.external_link %}
+        <div class="download-section">
+            <a href="{{ section.external_link }}" target="_blank" class="download-button">
+                📥 Скачать лабораторную работу (PDF)
+            </a>
+            <span class="file-info">Откроется в новом окне</span>
+        </div>
+        {% endif %}
+    </header>
+
+    <!-- Контент раздела -->
     <div class="section-content">
         {{ section.content|linebreaks }}
     </div>
-    <a href="{% url 'chapter_detail' section.chapter.id %}">← Назад к главе</a>
+
+    <!-- Дополнительное изображение после контента (опционально) -->
+    {% if section.image %}
+    <div class="section-image-footer">
+        <img src="{{ section.image.url }}" alt="{{ section.title }}" />
+        <p class="image-caption">Рис. 1: Схема физической топологии сети</p>
+    </div>
+    {% endif %}
+
+    <!-- Навигация -->
+    <div class="navigation-links">
+        <a href="{% url 'chapter_detail' section.chapter.module.id section.chapter.id %}" class="back-link">← Назад к главе</a>
+    </div>
 </div>
 {% endblock %}

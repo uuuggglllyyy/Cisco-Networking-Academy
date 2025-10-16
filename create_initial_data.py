@@ -4,14 +4,30 @@ import django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ciscocourse.settings')
 django.setup()
 
-from chapters.models import Chapter, Section
+from chapters.models import Module, Chapter, Section
 
 
 def create_initial_data():
-    # Создаем все 11 глав
+    # Создаем модули
+    modules_data = [
+        (1, "Введение в сетевые технологии", "Основы сетевых технологий и коммуникаций"),
+        (2, "Принципы маршрутизации и коммутации", "Изучение маршрутизации и коммутации в сетях"),
+        (3, "Масштабирование сетей", "Методы масштабирования и оптимизации сетей"),
+        (4, "Соединение сетей", "Технологии соединения и интеграции сетей"),
+    ]
+
+    for number, title, description in modules_data:
+        Module.objects.get_or_create(
+            number=number,
+            defaults={'title': title, 'description': description, 'order': number}
+        )
+
+    # Создаем главы для первого модуля
+    module1 = Module.objects.get(number=1)
+
     chapters_data = [
         (0, "Знакомство с курсом", "Введение в курс сетевых технологий"),
-        (1, "Изучение сети", ""),
+        (1, "Изучение сети", "Основные понятия и компоненты сетей"),
         (2, "Настройка сетевой операционной системы", ""),
         (3, "Сетевые протоколы и коммуникации", ""),
         (4, "Сетевой доступ", ""),
@@ -26,12 +42,13 @@ def create_initial_data():
 
     for number, title, description in chapters_data:
         Chapter.objects.get_or_create(
+            module=module1,
             number=number,
             defaults={'title': title, 'description': description, 'order': number}
         )
 
     # Заполняем первую главу разделами
-    chapter0 = Chapter.objects.get(number=0)
+    chapter0 = Chapter.objects.get(module=module1, number=0)
 
     sections_data = [
         ("0.0.1.1", "Вводная часть", """Курс «Введение в сетевые технологии»
@@ -49,9 +66,9 @@ def create_initial_data():
         ("0.0.1.6", "Видео материалы", "[Здесь будут видео материалы]"),
         ("0.0.1.7", "Технические требования", "[Здесь будут технические требования]"),
         ("0.0.1.8", "Основы сетевых технологий", "[Здесь будут основы сетевых технологий]"),
-        ("0.0.1.9", "Создание первой сети", "[Здесь будет руководство по созданию первой сети]"),
+        ("0.0.1.9", "Создание собственного мира", "[Здесь будет руководство по созданию первой сети]"),
         ("0.0.1.10", "Packet Tracer: обучение и принципы работы", "[Здесь будет информация о Packet Tracer]"),
-        ("0.0.1.11", "Общие рекомендации", "[Здесь будут общие рекомендации]"),
+        ("0.0.1.11", "Общее время", "[Здесь будут общие рекомендации]"),
     ]
 
     for i, (code, title, content) in enumerate(sections_data):

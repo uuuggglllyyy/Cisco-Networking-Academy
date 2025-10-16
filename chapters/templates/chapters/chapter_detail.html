@@ -3,6 +3,12 @@
 {% block title %}{{ chapter.title }} - Cisco Networking Academy{% endblock %}
 
 {% block content %}
+<nav>
+    <a href="{% url 'module_list' %}">Модули</a> →
+    <a href="{% url 'module_detail' chapter.module.id %}">Модуль {{ chapter.module.number }}</a> →
+    <span>Глава {{ chapter.number }}</span>
+</nav>
+
 <h2>Глава {{ chapter.number }}. {{ chapter.title }}</h2>
 {% if chapter.description %}
 <p>{{ chapter.description }}</p>
@@ -12,12 +18,12 @@
 <ul class="section-list">
     {% for section in sections %}
     <li class="section-item">
-        <a href="{% url 'section_detail' chapter.id section.id %}" class="section-link">
+        <a href="{% url 'section_detail' chapter.module.id chapter.id section.id %}" class="section-link">
             <strong>{{ section.code }}</strong> - {{ section.title }}
         </a>
     </li>
     {% endfor %}
 </ul>
 
-<a href="{% url 'chapter_list' %}">← Назад к списку глав</a>
+<a href="{% url 'module_detail' chapter.module.id %}">← Назад к модулю</a>
 {% endblock %}

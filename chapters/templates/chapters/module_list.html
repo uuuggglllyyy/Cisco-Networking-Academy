@@ -1,0 +1,17 @@
+{% extends 'chapters/base.html' %}
+
+{% block title %}Модули курса - Cisco Networking Academy{% endblock %}
+
+{% block content %}
+<h2>Содержание курса</h2>
+<div class="module-list">
+    {% for module in modules %}
+    <a href="{% url 'module_detail' module.id %}" class="module-card">
+        <h3>Модуль {{ module.number }}. {{ module.title }}</h3>
+        {% if module.description %}
+        <p>{{ module.description }}</p>
+        {% endif %}
+    </a>
+    {% endfor %}
+</div>
+{% endblock %}

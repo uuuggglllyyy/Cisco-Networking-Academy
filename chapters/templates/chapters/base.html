@@ -22,12 +22,12 @@
             margin: 0 auto;
             padding: 2rem;
         }
-        .chapter-list {
+        .module-list, .chapter-list {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 1rem;
         }
-        .chapter-card {
+        .module-card, .chapter-card {
             background: white;
             border-radius: 8px;
             padding: 1.5rem;
@@ -35,9 +35,11 @@
             text-decoration: none;
             color: inherit;
             display: block;
+            border-left: 6px solid #005073;
         }
-        .chapter-card:hover {
+        .module-card:hover, .chapter-card:hover {
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transform: translateY(-2px);
         }
         .section-list {
             list-style: none;
@@ -54,15 +56,224 @@
             text-decoration: none;
             color: #005073;
             border-left: 4px solid #005073;
+            transition: all 0.3s ease;
         }
         .section-link:hover {
             background: #e6f7ff;
+            padding-left: 1.5rem;
         }
         .content {
             background: white;
             padding: 2rem;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        nav {
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        nav a {
+            color: #005073;
+            text-decoration: none;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+        .external-link {
+        text-decoration: none;
+        color: #005073;
+        margin-left: 10px;
+        font-size: 1.2em;
+        transition: color 0.3s ease;
+        }
+
+        .external-link:hover {
+            color: #0078a8;
+        }
+
+        .navigation-links {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+        }
+
+        .back-link {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: #005073;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background 0.3s ease;
+        }
+
+        .back-link:hover {
+            background: #0078a8;
+        }
+        .breadcrumb {
+        background: #f8f9fa;
+        padding: 0.75rem 1rem;
+        border-radius: 4px;
+        margin-bottom: 1.5rem;
+        font-size: 0.9em;
+        }
+
+        .breadcrumb a {
+            color: #005073;
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        /* Заголовок раздела */
+        .section-header {
+            border-bottom: 2px solid #005073;
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .section-header h1 {
+            color: #005073;
+            margin: 0 0 1rem 0;
+            font-size: 1.8em;
+        }
+
+        /* Изображения */
+        .section-image {
+            text-align: center;
+            margin: 2rem 0;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .section-image img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .section-image-footer {
+            text-align: center;
+            margin: 2rem 0;
+            padding: 1rem;
+        }
+
+        .section-image-footer img {
+            max-width: 80%;
+            height: auto;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        .image-caption {
+            font-style: italic;
+            color: #666;
+            margin-top: 0.5rem;
+            font-size: 0.9em;
+        }
+
+        /* Контент */
+        .section-content {
+            line-height: 1.6;
+            font-size: 1.1em;
+        }
+
+        .section-content h2 {
+            color: #005073;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 0.5rem;
+            margin-top: 2rem;
+        }
+
+        .section-content h3 {
+            color: #333;
+            margin-top: 1.5rem;
+        }
+
+        .section-content ul, .section-content ol {
+            margin: 1rem 0;
+            padding-left: 2rem;
+        }
+
+        .section-content li {
+            margin: 0.5rem 0;
+        }
+
+        .section-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        .section-content th, .section-content td {
+            border: 1px solid #ddd;
+            padding: 0.75rem;
+            text-align: left;
+        }
+
+        .section-content th {
+            background: #f8f9fa;
+            font-weight: bold;
+        }
+
+        /* Кнопка скачивания */
+        .download-section {
+            background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
+            border: 2px solid #bbdefb;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .download-button {
+            display: inline-block;
+            background: #005073;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .download-button:hover {
+            background: #0078a8;
+            transform: translateY(-2px);
+        }
+
+        .file-info {
+            display: block;
+            margin-top: 0.5rem;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        /* Навигация */
+        .navigation-links {
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+            text-align: center;
+        }
+
+        .back-link {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: #005073;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: background 0.3s ease;
+            font-weight: bold;
+        }
+
+        .back-link:hover {
+            background: #0078a8;
         }
     </style>
 </head>
