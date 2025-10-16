@@ -25,7 +25,7 @@ class ChapterAdmin(admin.ModelAdmin):
 
 @admin.register(Section)
 class SectionAdmin(admin.ModelAdmin):
-    list_display = ['code', 'title', 'chapter', 'image_preview', 'order']
+    list_display = ['code', 'title', 'chapter', 'external_link', 'attached_file', 'order']
     list_filter = ['chapter__module', 'chapter']
     list_editable = ['order']
     readonly_fields = ['image_preview']

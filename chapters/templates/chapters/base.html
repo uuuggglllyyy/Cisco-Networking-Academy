@@ -5,28 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Cisco Networking Academy{% endblock %}</title>
     <style>
+        /* Основные стили */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
             background-color: #f5f5f5;
+            line-height: 1.6;
         }
+
         .header {
             background-color: #005073;
             color: white;
             padding: 1rem;
             text-align: center;
         }
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 2rem;
         }
+
+        /* Списки модулей и глав */
         .module-list, .chapter-list {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 1rem;
         }
+
         .module-card, .chapter-card {
             background: white;
             border-radius: 8px;
@@ -36,18 +43,24 @@
             color: inherit;
             display: block;
             border-left: 6px solid #005073;
+            transition: all 0.3s ease;
         }
+
         .module-card:hover, .chapter-card:hover {
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
             transform: translateY(-2px);
         }
+
+        /* Список разделов */
         .section-list {
             list-style: none;
             padding: 0;
         }
+
         .section-item {
             margin: 0.5rem 0;
         }
+
         .section-link {
             display: block;
             padding: 1rem;
@@ -58,64 +71,41 @@
             border-left: 4px solid #005073;
             transition: all 0.3s ease;
         }
+
         .section-link:hover {
             background: #e6f7ff;
             padding-left: 1.5rem;
         }
+
+        /* Основной контент */
         .content {
             background: white;
             padding: 2rem;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
+
+        /* Навигация и хлебные крошки */
         nav {
             margin-bottom: 1rem;
             font-size: 0.9rem;
         }
+
         nav a {
             color: #005073;
             text-decoration: none;
         }
+
         nav a:hover {
             text-decoration: underline;
         }
-        .external-link {
-        text-decoration: none;
-        color: #005073;
-        margin-left: 10px;
-        font-size: 1.2em;
-        transition: color 0.3s ease;
-        }
 
-        .external-link:hover {
-            color: #0078a8;
-        }
-
-        .navigation-links {
-            margin-top: 2rem;
-            padding-top: 1rem;
-            border-top: 1px solid #eee;
-        }
-
-        .back-link {
-            display: inline-block;
-            padding: 0.5rem 1rem;
-            background: #005073;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            transition: background 0.3s ease;
-        }
-
-        .back-link:hover {
-            background: #0078a8;
-        }
         .breadcrumb {
-        background: #f8f9fa;
-        padding: 0.75rem 1rem;
-        border-radius: 4px;
-        margin-bottom: 1.5rem;
-        font-size: 0.9em;
+            background: #f8f9fa;
+            padding: 0.75rem 1rem;
+            border-radius: 4px;
+            margin-bottom: 1.5rem;
+            font-size: 0.9em;
         }
 
         .breadcrumb a {
@@ -140,44 +130,7 @@
             font-size: 1.8em;
         }
 
-        /* Изображения */
-        .section-image {
-            text-align: center;
-            margin: 2rem 0;
-            padding: 1rem;
-            background: #f8f9fa;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-        }
-
-        .section-image img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 4px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .section-image-footer {
-            text-align: center;
-            margin: 2rem 0;
-            padding: 1rem;
-        }
-
-        .section-image-footer img {
-            max-width: 80%;
-            height: auto;
-            border-radius: 4px;
-            border: 1px solid #ddd;
-        }
-
-        .image-caption {
-            font-style: italic;
-            color: #666;
-            margin-top: 0.5rem;
-            font-size: 0.9em;
-        }
-
-        /* Контент */
+        /* Контент раздела */
         .section-content {
             line-height: 1.6;
             font-size: 1.1em;
@@ -221,7 +174,179 @@
             font-weight: bold;
         }
 
-        /* Кнопка скачивания */
+        /* Изображения */
+        .section-image {
+            text-align: center;
+            margin: 2rem 0;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .section-image img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .section-image-footer {
+            text-align: center;
+            margin: 2rem 0;
+            padding: 1rem;
+        }
+
+        .section-image-footer img {
+            max-width: 80%;
+            height: auto;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        .image-caption {
+            font-style: italic;
+            color: #666;
+            margin-top: 0.5rem;
+            font-size: 0.9em;
+        }
+
+        /* Внешние ссылки и ресурсы */
+        .external-links-section {
+            background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
+            border: 2px solid #bbdefb;
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            margin: 1rem 0 2rem 0;
+        }
+
+        .external-resource-button {
+            display: inline-block;
+            background: #2196f3;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+            border: 2px solid #2196f3;
+            box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
+        }
+
+        .external-resource-button:hover {
+            background: white;
+            color: #2196f3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4);
+        }
+
+        .link-info {
+            display: block;
+            margin-top: 0.5rem;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .external-links-bottom {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .external-links-bottom h3 {
+            color: #005073;
+            margin-top: 0;
+            margin-bottom: 1rem;
+        }
+
+        .resource-link {
+            display: inline-block;
+            background: #4caf50;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            margin: 0.5rem 0;
+            transition: background 0.3s ease;
+        }
+
+        .resource-link:hover {
+            background: #388e3c;
+            text-decoration: none;
+            color: white;
+        }
+
+        .resource-description {
+            font-size: 0.9em;
+            color: #666;
+            margin: 0.5rem 0 0 0;
+            font-style: italic;
+        }
+
+        /* Интерактивные задания */
+        .interactive-task {
+            background: linear-gradient(135deg, #e8f5e8, #f3e5f5);
+            border: 2px solid #4caf50;
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .task-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .task-icon {
+            font-size: 2em;
+            margin-right: 1rem;
+        }
+
+        .task-header h3 {
+            margin: 0;
+            color: #2e7d32;
+        }
+
+        .task-button {
+            display: inline-block;
+            background: #4caf50;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            margin: 1rem 0;
+            transition: all 0.3s ease;
+        }
+
+        .task-button:hover {
+            background: #388e3c;
+            transform: translateY(-2px);
+        }
+
+        .task-features {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .task-features h4 {
+            color: #005073;
+            margin-top: 0;
+        }
+
+        .task-features ul {
+            margin: 0.5rem 0;
+        }
+
+        /* Кнопки скачивания */
         .download-section {
             background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
             border: 2px solid #bbdefb;
@@ -239,10 +364,12 @@
             border-radius: 6px;
             font-weight: bold;
             transition: all 0.3s ease;
+            border: 2px solid #005073;
         }
 
         .download-button:hover {
-            background: #0078a8;
+            background: white;
+            color: #005073;
             transform: translateY(-2px);
         }
 
@@ -253,7 +380,175 @@
             color: #666;
         }
 
-        /* Навигация */
+        /* Интерактивный тренажер */
+        .interactive-exercise {
+            background: #f8f9fa;
+            border: 2px solid #005073;
+            border-radius: 10px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .exercise-description {
+            font-style: italic;
+            color: #666;
+            margin-bottom: 1.5rem;
+        }
+
+        .exercise-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .functions-area, .categories-area {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .functions-area h3, .categories-area h3 {
+            color: #005073;
+            margin-top: 0;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 0.5rem;
+        }
+
+        .functions-list {
+            min-height: 200px;
+        }
+
+        .function-item {
+            background: #e3f2fd;
+            border: 1px solid #bbdefb;
+            border-radius: 6px;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            cursor: move;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        .function-item:hover {
+            background: #bbdefb;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .function-item.dragging {
+            opacity: 0.5;
+            background: #90caf9;
+        }
+
+        .categories-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .category {
+            background: #f5f5f5;
+            border-radius: 6px;
+            padding: 1rem;
+        }
+
+        .category h4 {
+            margin: 0 0 0.5rem 0;
+            color: #333;
+            font-size: 1em;
+        }
+
+        .drop-zone {
+            min-height: 80px;
+            border: 2px dashed #ccc;
+            border-radius: 4px;
+            padding: 0.5rem;
+            transition: all 0.3s ease;
+            background: #fafafa;
+        }
+
+        .drop-zone.drag-over {
+            border-color: #005073;
+            background: #e3f2fd;
+        }
+
+        .drop-zone .function-item {
+            margin: 0.25rem 0;
+        }
+
+        /* Стили для правильных/неправильных ответов */
+        .function-item.correct {
+            background: #e8f5e8;
+            border-color: #4caf50;
+            color: #2e7d32;
+        }
+
+        .function-item.incorrect {
+            background: #ffebee;
+            border-color: #f44336;
+            color: #c62828;
+        }
+
+        /* Кнопки управления */
+        .exercise-controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .check-button, .reset-button {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .check-button {
+            background: #4caf50;
+            color: white;
+        }
+
+        .check-button:hover {
+            background: #388e3c;
+            transform: translateY(-2px);
+        }
+
+        .reset-button {
+            background: #ff9800;
+            color: white;
+        }
+
+        .reset-button:hover {
+            background: #f57c00;
+            transform: translateY(-2px);
+        }
+
+        /* Результат */
+        .exercise-result {
+            text-align: center;
+            font-weight: bold;
+            padding: 1rem;
+            border-radius: 6px;
+        }
+
+        .result-success {
+            background: #e8f5e8;
+            color: #2e7d32;
+            border: 1px solid #4caf50;
+        }
+
+        .result-warning {
+            background: #fff3e0;
+            color: #ef6c00;
+            border: 1px solid #ff9800;
+        }
+
+        /* Навигационные ссылки */
         .navigation-links {
             margin-top: 3rem;
             padding-top: 1.5rem;
@@ -275,12 +570,165 @@
         .back-link:hover {
             background: #0078a8;
         }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .module-list, .chapter-list {
+                grid-template-columns: 1fr;
+            }
+
+            .exercise-container {
+                grid-template-columns: 1fr;
+            }
+
+            .exercise-controls {
+                flex-direction: column;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .content {
+                padding: 1rem;
+            }
+        }
+        /* Стили для приложенных файлов */
+        .attached-files-section {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .attached-files-section h3 {
+            color: #005073;
+            margin-top: 0;
+            margin-bottom: 1rem;
+        }
+
+        .file-download-card {
+            display: flex;
+            align-items: center;
+            background: white;
+            border: 2px solid #4caf50;
+            border-radius: 8px;
+            padding: 1.5rem;
+            gap: 1rem;
+        }
+
+        .file-icon {
+            font-size: 2.5em;
+            flex-shrink: 0;
+        }
+
+        .file-info {
+            flex-grow: 1;
+        }
+
+        .file-info h4 {
+            margin: 0 0 0.5rem 0;
+            color: #333;
+        }
+
+        .file-info p {
+            margin: 0 0 0.5rem 0;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .file-details {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.8em;
+            color: #888;
+        }
+
+        .file-format, .file-size {
+            background: #f5f5f5;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+
+        .download-file-button {
+            display: inline-block;
+            background: #4caf50;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .download-file-button:hover {
+            background: #388e3c;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(56, 142, 60, 0.3);
+        }
+
+        /* Стили для нескольких файлов (если нужно будет расширить) */
+        .multiple-files {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+
+        .file-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .file-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .file-card-icon {
+            font-size: 3em;
+            margin-bottom: 1rem;
+        }
+
+        .file-card h4 {
+            margin: 0.5rem 0;
+            color: #005073;
+        }
+
+        .file-card p {
+            font-size: 0.9em;
+            color: #666;
+            margin: 0.5rem 0;
+        }
+
+        /* Разные цвета для типов файлов */
+        .file-pdf {
+            border-left: 4px solid #f44336;
+        }
+
+        .file-doc {
+            border-left: 4px solid #2196f3;
+        }
+
+        .file-zip {
+            border-left: 4px solid #ff9800;
+        }
+
+        .file-other {
+            border-left: 4px solid #9c27b0;
+        }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>Cisco Networking Academy</h1>
+        <h1>Электронный учебник по Cisco</h1>
         <p>Введение в сетевые технологии</p>
+        <p>Солдатов Д.И</p>
     </div>
     <div class="container">
         {% block content %}

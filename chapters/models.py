@@ -38,8 +38,10 @@ class Section(models.Model):
     title = models.CharField(max_length=200, verbose_name="Название раздела")
     content = models.TextField(verbose_name="Содержание")
     external_link = models.URLField(blank=True, verbose_name="Внешняя ссылка")
-    image = models.ImageField(upload_to='section_images/', blank=True, null=True,
-                              verbose_name="Изображение")  # Новое поле
+    attached_file = models.FileField(upload_to='section_files/', blank=True, null=True,
+                                     verbose_name="Приложенный файл")  # Новое поле
+    image = models.ImageField(upload_to='section_images/', blank=True, null=True, verbose_name="Изображение")
+    interactive_data = models.JSONField(blank=True, null=True, verbose_name="Данные для интерактивного задания")
     order = models.IntegerField(default=0, verbose_name="Порядок")
 
     class Meta:

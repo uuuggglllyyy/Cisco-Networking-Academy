@@ -11,35 +11,282 @@
 </nav>
 
 <div class="content">
-    <!-- Заголовок раздела -->
     <header class="section-header">
         <h1>{{ section.code }} {{ section.title }}</h1>
+
+        <!-- Внешние ссылки -->
         {% if section.external_link %}
-        <div class="download-section">
-            <a href="{{ section.external_link }}" target="_blank" class="download-button">
-                📥 Открыть приложенный файл
+        <div class="external-links-section">
+            <a href="{{ section.external_link }}" target="_blank" class="external-resource-button">
+                🌐 Открыть приложенную страницу
             </a>
-            <span class="file-info">Откроется в новом окне</span>
+            <span class="link-info">Откроется в новом окне</span>
         </div>
         {% endif %}
     </header>
+
+    <!-- Изображение раздела -->
+    {% if section.image %}
+    <div class="section-image">
+        <img src="{{ section.image.url }}" alt="{{ section.title }}" />
+        <p class="image-caption">Иллюстрация</p>
+    </div>
+    {% endif %}
 
     <!-- Контент раздела -->
     <div class="section-content">
         {{ section.content|linebreaks }}
     </div>
 
-    <!-- Дополнительное изображение после контента (опционально) -->
-    {% if section.image %}
-    <div class="section-image-footer">
-        <img src="{{ section.image.url }}" alt="{{ section.title }}" />
-        <p class="image-caption">Рис. 1: Схема физической топологии сети</p>
+    <!-- Приложенные файлы -->
+    {% if section.attached_file %}
+    <div class="attached-files-section">
+        <h3>📎 Материалы для скачивания:</h3>
+        <div class="file-download-card">
+            <div class="file-icon">
+                {% if section.attached_file.url|lower|slice:'-4:' == '.pdf' %}
+                    📄
+                {% elif section.attached_file.url|lower|slice:'-4:' == '.doc' or section.attached_file.url|lower|slice:'-5:' == '.docx' %}
+                    📝
+                {% elif section.attached_file.url|lower|slice:'-4:' == '.zip' %}
+                    📦
+                {% else %}
+                    📎
+                {% endif %}
+            </div>
+            <div class="file-info">
+                <h4>Инструкция к заданию</h4>
+                <p>Файл с подробными инструкциями по выполнению работы</p>
+                <div class="file-details">
+                    <span class="file-format">
+                        {% if section.attached_file.url|lower|slice:'-4:' == '.pdf' %}
+                            PDF документ
+                        {% elif section.attached_file.url|lower|slice:'-4:' == '.doc' %}
+                            Word документ
+                        {% elif section.attached_file.url|lower|slice:'-5:' == '.docx' %}
+                            Word документ
+                        {% elif section.attached_file.url|lower|slice:'-4:' == '.zip' %}
+                            ZIP архив
+                        {% else %}
+                            Файл
+                        {% endif %}
+                    </span>
+                    <span class="file-size">(~2-3 МБ)</span>
+                </div>
+            </div>
+            <a href="{{ section.attached_file.url }}" download class="download-file-button">
+                📥 Скачать файл
+            </a>
+        </div>
     </div>
     {% endif %}
 
-    <!-- Навигация -->
+    <!-- Интерактивный тренажер -->
+    {% if section.interactive_data %}
+    <div class="interactive-exercise">
+        <h2>Упражнение — часть 1: Функции сетевого компонента</h2>
+        <p class="exercise-description">Переместите функцию сетевого компонента в соответствующую категорию устройства.</p>
+
+        <div class="exercise-container">
+            <!-- Область с функциями для перетаскивания -->
+            <div class="functions-area">
+                <h3>Функции</h3>
+                <div class="functions-list" id="functionsList">
+                    <!-- Функции будут добавлены через JavaScript -->
+                </div>
+            </div>
+
+            <!-- Область с категориями для размещения -->
+            <div class="categories-area">
+                <h3>Категория устройства</h3>
+                <div class="categories-list">
+                    <div class="category" data-category="end_devices">
+                        <h4>Оконечные устройства</h4>
+                        <div class="drop-zone" data-category="end_devices"></div>
+                    </div>
+                    <div class="category" data-category="intermediate_devices">
+                        <h4>Промежуточные устройства</h4>
+                        <div class="drop-zone" data-category="intermediate_devices"></div>
+                    </div>
+                    <div class="category" data-category="network_media">
+                        <h4>Сетевая среда</h4>
+                        <div class="drop-zone" data-category="network_media"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Кнопки управления -->
+        <div class="exercise-controls">
+            <button id="checkAnswers" class="check-button">Проверить</button>
+            <button id="resetExercise" class="reset-button">Сброс</button>
+        </div>
+
+        <!-- Результат -->
+        <div id="exerciseResult" class="exercise-result"></div>
+    </div>
+    {% endif %}
+
     <div class="navigation-links">
         <a href="{% url 'chapter_detail' section.chapter.module.id section.chapter.id %}" class="back-link">← Назад к главе</a>
     </div>
 </div>
+
+<!-- JavaScript для тренажера -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Данные упражнения
+    const exerciseData = {
+        functions: [
+            {
+                id: 1,
+                text: "Служит в качестве канала для передачи сообщения от источника данных к адресу назначения.",
+                correctCategory: "network_media"
+            },
+            {
+                id: 2,
+                text: "Служит в качестве интерфейса между последовательной цепочкой людей и сетью передачи данных.",
+                correctCategory: "end_devices"
+            },
+            {
+                id: 3,
+                text: "Обеспечивает подключение какого-либо узла к данной сети, а также поддерживает функции подключения к нескольким сетям с последующим созданием объединённой сети.",
+                correctCategory: "intermediate_devices"
+            }
+        ],
+        categories: {
+            end_devices: "Оконечные устройства",
+            intermediate_devices: "Промежуточные устройства",
+            network_media: "Сетевая среда"
+        }
+    };
+
+    // Инициализация упражнения
+    initializeExercise();
+
+    function initializeExercise() {
+        const functionsList = document.getElementById('functionsList');
+        const dropZones = document.querySelectorAll('.drop-zone');
+
+        // Очищаем области
+        functionsList.innerHTML = '';
+        dropZones.forEach(zone => zone.innerHTML = '');
+
+        // Создаем элементы функций
+        exerciseData.functions.forEach(func => {
+            const functionElement = document.createElement('div');
+            functionElement.className = 'function-item';
+            functionElement.textContent = func.text;
+            functionElement.draggable = true;
+            functionElement.dataset.id = func.id;
+            functionElement.dataset.correctCategory = func.correctCategory;
+
+            functionElement.addEventListener('dragstart', handleDragStart);
+            functionsList.appendChild(functionElement);
+        });
+
+        // Настраиваем зоны сброса
+        dropZones.forEach(zone => {
+            zone.addEventListener('dragover', handleDragOver);
+            zone.addEventListener('drop', handleDrop);
+            zone.addEventListener('dragenter', handleDragEnter);
+            zone.addEventListener('dragleave', handleDragLeave);
+        });
+
+        // Сбрасываем результат
+        document.getElementById('exerciseResult').innerHTML = '';
+    }
+
+    // Обработчики Drag & Drop
+    let draggedItem = null;
+
+    function handleDragStart(e) {
+        draggedItem = e.target;
+        e.target.classList.add('dragging');
+    }
+
+    function handleDragOver(e) {
+        e.preventDefault();
+    }
+
+    function handleDrop(e) {
+        e.preventDefault();
+        if (draggedItem && e.target.classList.contains('drop-zone')) {
+            // Удаляем из исходного места
+            if (draggedItem.parentNode.classList.contains('functions-list')) {
+                draggedItem.parentNode.removeChild(draggedItem);
+            } else if (draggedItem.parentNode.classList.contains('drop-zone')) {
+                draggedItem.parentNode.removeChild(draggedItem);
+            }
+
+            // Добавляем в новую зону
+            e.target.appendChild(draggedItem);
+            draggedItem.classList.remove('dragging');
+            draggedItem = null;
+
+            // Убираем подсветку
+            e.target.classList.remove('drag-over');
+        }
+    }
+
+    function handleDragEnter(e) {
+        if (e.target.classList.contains('drop-zone')) {
+            e.target.classList.add('drag-over');
+        }
+    }
+
+    function handleDragLeave(e) {
+        if (e.target.classList.contains('drop-zone')) {
+            e.target.classList.remove('drag-over');
+        }
+    }
+
+    // Проверка ответов
+    document.getElementById('checkAnswers').addEventListener('click', function() {
+        const dropZones = document.querySelectorAll('.drop-zone');
+        let correctCount = 0;
+        let totalCount = exerciseData.functions.length;
+
+        dropZones.forEach(zone => {
+            const functionItems = zone.querySelectorAll('.function-item');
+            functionItems.forEach(item => {
+                const correctCategory = item.dataset.correctCategory;
+                const currentCategory = zone.dataset.category;
+
+                if (correctCategory === currentCategory) {
+                    item.classList.add('correct');
+                    item.classList.remove('incorrect');
+                    correctCount++;
+                } else {
+                    item.classList.add('incorrect');
+                    item.classList.remove('correct');
+                }
+            });
+        });
+
+        // Показываем результат
+        const resultElement = document.getElementById('exerciseResult');
+        const percentage = Math.round((correctCount / totalCount) * 100);
+
+        if (correctCount === totalCount) {
+            resultElement.innerHTML = `
+                <div class="result-success">
+                    ✅ Отлично! Все функции размещены правильно! (${percentage}%)
+                </div>
+            `;
+        } else {
+            resultElement.innerHTML = `
+                <div class="result-warning">
+                    ⚠️ Правильно размещено ${correctCount} из ${totalCount} функций (${percentage}%)
+                </div>
+            `;
+        }
+    });
+
+    // Сброс упражнения
+    document.getElementById('resetExercise').addEventListener('click', function() {
+        initializeExercise();
+    });
+});
+</script>
 {% endblock %}
