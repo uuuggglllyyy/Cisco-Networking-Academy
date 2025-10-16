@@ -12,6 +12,9 @@
             padding: 0;
             background-color: #f5f5f5;
             line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
 
         .header {
@@ -25,9 +28,60 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 2rem;
+            flex: 1;
         }
 
-        /* Списки модулей и глав */
+        /* Панель разработчиков */
+        .developers-footer {
+            background: #f8f9fa;
+            border-top: 1px solid #e0e0e0;
+            padding: 1rem 2rem;
+            text-align: center;
+            margin-top: auto;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .developers-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .developers-label {
+            font-weight: 600;
+            color: #005073;
+        }
+
+        .developers-names {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .developer-name {
+            padding: 0.25rem 0.75rem;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 15px;
+            font-size: 0.85em;
+            color: #555;
+            transition: all 0.3s ease;
+        }
+
+        .developer-name:hover {
+            background: #005073;
+            color: white;
+            border-color: #005073;
+            transform: translateY(-1px);
+        }
+
+        /* Остальные существующие стили остаются без изменений */
         .module-list, .chapter-list {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -571,28 +625,6 @@
             background: #0078a8;
         }
 
-        /* Адаптивность */
-        @media (max-width: 768px) {
-            .module-list, .chapter-list {
-                grid-template-columns: 1fr;
-            }
-
-            .exercise-container {
-                grid-template-columns: 1fr;
-            }
-
-            .exercise-controls {
-                flex-direction: column;
-            }
-
-            .container {
-                padding: 1rem;
-            }
-
-            .content {
-                padding: 1rem;
-            }
-        }
         /* Стили для приложенных файлов */
         .attached-files-section {
             background: #f8f9fa;
@@ -722,17 +754,59 @@
         .file-other {
             border-left: 4px solid #9c27b0;
         }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .module-list, .chapter-list {
+                grid-template-columns: 1fr;
+            }
+
+            .exercise-container {
+                grid-template-columns: 1fr;
+            }
+
+            .exercise-controls {
+                flex-direction: column;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .content {
+                padding: 1rem;
+            }
+
+            .developers-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .developers-names {
+                gap: 0.75rem;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>Электронный учебник по Cisco</h1>
+        <h1>Cisco Networking Academy</h1>
         <p>Введение в сетевые технологии</p>
-        <p>Солдатов Д.И</p>
     </div>
     <div class="container">
         {% block content %}
         {% endblock %}
+    </div>
+
+    <!-- Панель разработчиков -->
+    <div class="developers-footer">
+        <div class="developers-container">
+            <div class="developers-label">Разработчики системы:</div>
+            <div class="developers-names">
+                <span class="developer-name">Солдатов Д.И.</span>
+                <span class="developer-name">Черепанов Е.В.</span>
+            </div>
+        </div>
     </div>
 </body>
 </html>
