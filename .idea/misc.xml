@@ -3,5 +3,9 @@
   <component name="Black">
     <option name="sdkName" value="Python 3.13 (pougarat)" />
   </component>
+<<<<<<< HEAD
   <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.14 (Cisco-Networking-Academy-main)" project-jdk-type="Python SDK" />
+=======
+  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.13 (proj1)" project-jdk-type="Python SDK" />
+>>>>>>> 04d89ea25971073a1a76df8e8e850e68e31fe10c
 </project>
