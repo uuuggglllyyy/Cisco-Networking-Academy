@@ -1,0 +1,390 @@
+{% extends 'chapters/base.html' %}
+
+{% block title %}AI Помощник - Cisco Networking Academy{% endblock %}
+
+{% block content %}
+<div class="main-container">
+    <div class="content-wrapper">
+        <div class="chat-header-full">
+            <h1>🤖 AI Помощник Cisco</h1>
+            <p>Добро пожаловать в Cisco Networking Academy! Я ваш AI-помощник по курсу "Введение в сетевые технологии"</p>
+
+            {% if current_module or current_chapter or current_section %}
+            <div class="context-info">
+                <strong>Текущий контекст:</strong>
+                {% if current_module %}Модуль: {{ current_module }}{% endif %}
+                {% if current_chapter %} → Глава: {{ current_chapter }}{% endif %}
+                {% if current_section %} → Раздел: {{ current_section }}{% endif %}
+            </div>
+            {% endif %}
+
+            <a href="{% if module_id %}{% url 'module_detail' module_id %}{% else %}{% url 'module_list' %}{% endif %}" class="btn btn-secondary">
+                ← Назад к курсу
+            </a>
+        </div>
+
+        <!-- Используем тот же чат контейнер но в полном размере -->
+        <div class="chat-container-full">
+            <div class="chat-messages-full" id="chatMessages">
+                <div class="message bot-message">
+                    <div class="message-content">
+                        <strong>Добро пожаловать в Cisco Networking Academy!</strong><br><br>
+                        Я ваш AI-помощник по курсу "Введение в сетевые технологии".
+                        Задавайте вопросы по:<br>
+                        • Сетевым протоколам (TCP/IP, HTTP, DNS)<br>
+                        • Оборудованию (маршрутизаторы, коммутаторы)<br>
+                        • IP-адресации и подсетям<br>
+                        • Безопасности сетей<br>
+                        • И другим темам курса!
+                    </div>
+                    <div class="message-time">Только что</div>
+                </div>
+            </div>
+
+            <div class="chat-input-container-full">
+                <div class="chat-input-wrapper">
+                    <input
+                        type="text"
+                        id="chatInput"
+                        placeholder="Задайте вопрос по курсу..."
+                        maxlength="500"
+                    >
+                    <button onclick="sendMessage()" id="sendButton">➤</button>
+                </div>
+                <div class="chat-hint">
+                    Например: "What is TCP/IP?" или "Explain OSI model" (рекомендуется английский)
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.main-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.chat-header-full {
+    text-align: center;
+    margin-bottom: 2rem;
+    background: linear-gradient(135deg, #005073, #0078a8);
+    color: white;
+    padding: 2rem;
+    border-radius: 12px;
+}
+
+.chat-header-full h1 {
+    margin: 0 0 1rem 0;
+    font-size: 2.5em;
+}
+
+.chat-header-full p {
+    margin: 0 0 1rem 0;
+    opacity: 0.9;
+    font-size: 1.1em;
+}
+
+.context-info {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.75rem;
+    border-radius: 8px;
+    margin: 1rem 0;
+    font-size: 1em;
+}
+
+.chat-container-full {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    height: 70vh;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #e1e5e9;
+}
+
+.chat-messages-full {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.chat-input-container-full {
+    padding: 1.5rem;
+    border-top: 1px solid #e1e5e9;
+    background: #f8f9fa;
+    border-radius: 0 0 12px 12px;
+}
+
+/* Используем ваши существующие стили сообщений */
+.message {
+    display: flex;
+    flex-direction: column;
+    max-width: 70%;
+}
+
+.user-message {
+    align-self: flex-end;
+}
+
+.bot-message {
+    align-self: flex-start;
+}
+
+.message-content {
+    padding: 0.75rem 1rem;
+    border-radius: 18px;
+    font-size: 0.95em;
+    line-height: 1.4;
+    word-wrap: break-word;
+}
+
+.user-message .message-content {
+    background: linear-gradient(135deg, #005073, #0078a8);
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+
+.bot-message .message-content {
+    background: #f8f9fa;
+    color: #333;
+    border: 1px solid #e9ecef;
+    border-bottom-left-radius: 4px;
+}
+
+.message-time {
+    font-size: 0.7em;
+    color: #666;
+    margin-top: 0.25rem;
+    padding: 0 0.5rem;
+}
+
+.chat-input-wrapper {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+#chatInput {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 24px;
+    font-size: 0.95em;
+    outline: none;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+#chatInput:focus {
+    border-color: #005073;
+    box-shadow: 0 0 0 2px rgba(0, 80, 115, 0.1);
+}
+
+#sendButton {
+    background: linear-gradient(135deg, #005073, #0078a8);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9em;
+}
+
+#sendButton:hover:not(:disabled) {
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(0, 80, 115, 0.3);
+}
+
+#sendButton:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.chat-hint {
+    font-size: 0.8em;
+    color: #666;
+    text-align: center;
+    font-style: italic;
+    line-height: 1.3;
+}
+
+.typing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 18px;
+    border-bottom-left-radius: 4px;
+    align-self: flex-start;
+    max-width: 70%;
+    font-size: 0.9em;
+    color: #666;
+}
+
+.typing-dots {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.typing-dot {
+    width: 6px;
+    height: 6px;
+    background: #666;
+    border-radius: 50%;
+    animation: typingAnimation 1.4s infinite ease-in-out;
+}
+
+.typing-dot:nth-child(1) { animation-delay: -0.32s; }
+.typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes typingAnimation {
+    0%, 80%, 100% {
+        transform: scale(0.8);
+        opacity: 0.5;
+    }
+    40% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+</style>
+
+<script>
+let chatHistory = [];
+
+function addMessage(message, isUser = false) {
+    const chatMessages = document.getElementById('chatMessages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('ru-RU', {
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+
+    const formattedMessage = formatMessage(message);
+
+    messageDiv.innerHTML = `
+        <div class="message-content">${formattedMessage}</div>
+        <div class="message-time">${timeString}</div>
+    `;
+
+    chatMessages.appendChild(messageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    chatHistory.push({
+        role: isUser ? 'user' : 'assistant',
+        content: message,
+        timestamp: now
+    });
+}
+
+function formatMessage(text) {
+    text = text.replace(/\n/g, '<br>');
+    text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
+    text = text.replace(/^•\s+/gm, '• ');
+    return text;
+}
+
+function showTypingIndicator() {
+    const chatMessages = document.getElementById('chatMessages');
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'typing-indicator';
+    typingDiv.id = 'typingIndicator';
+    typingDiv.innerHTML = `
+        <div>AI помощник печатает...</div>
+        <div class="typing-dots">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+        </div>
+    `;
+    chatMessages.appendChild(typingDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function hideTypingIndicator() {
+    const typingIndicator = document.getElementById('typingIndicator');
+    if (typingIndicator) {
+        typingIndicator.remove();
+    }
+}
+
+async function sendMessage() {
+    const input = document.getElementById('chatInput');
+    const button = document.getElementById('sendButton');
+    const message = input.value.trim();
+
+    if (!message) return;
+
+    input.value = '';
+    button.disabled = true;
+
+    addMessage(message, true);
+    showTypingIndicator();
+
+    try {
+        const response = await fetch('/api/ai-assistant/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                message: message,
+                context: '{% if current_module %}Модуль: {{ current_module }}{% endif %}'
+            })
+        });
+
+        const data = await response.json();
+        hideTypingIndicator();
+
+        if (data.response) {
+            addMessage(data.response);
+        } else {
+            addMessage(`❌ ${data.error || 'Произошла ошибка'}`);
+        }
+    } catch (error) {
+        hideTypingIndicator();
+        addMessage('🌐 Ошибка соединения с AI сервером');
+        console.error('Chat error:', error);
+    } finally {
+        button.disabled = false;
+        input.focus();
+    }
+}
+
+// Обработка нажатия Enter
+document.getElementById('chatInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+    }
+});
+
+// Авто-фокус
+document.addEventListener('DOMContentLoaded', function() {
+    const chatInput = document.getElementById('chatInput');
+    if (chatInput) {
+        setTimeout(() => {
+            chatInput.focus();
+        }, 500);
+    }
+});
+</script>
+{% endblock %}

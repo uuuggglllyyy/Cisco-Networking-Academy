@@ -1,0 +1,24 @@
+{% extends 'chapters/base.html' %}
+
+{% block title %}{{ module.title }} - Cisco Networking Academy{% endblock %}
+
+{% block content %}
+<h2>Модуль {{ module.number }}. {{ module.title }}</h2>
+{% if module.description %}
+<p>{{ module.description }}</p>
+{% endif %}
+
+<h3>Главы:</h3>
+<div class="chapter-list">
+    {% for chapter in chapters %}
+    <a href="{% url 'chapter_detail' module.id chapter.id %}" class="chapter-card">
+        <h4>Глава {{ chapter.number }}. {{ chapter.title }}</h4>
+        {% if chapter.description %}
+        <p>{{ chapter.description }}</p>
+        {% endif %}
+    </a>
+    {% endfor %}
+</div>
+
+<a href="{% url 'module_list' %}">← Назад к списку модулей</a>
+{% endblock %}
