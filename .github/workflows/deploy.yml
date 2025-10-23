@@ -1,0 +1,18 @@
+name: Simple SSH Test
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Simple connection test
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: 10.0.14.57
+        username: root
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          echo "✅ Connected to $(hostname) as $(whoami)"

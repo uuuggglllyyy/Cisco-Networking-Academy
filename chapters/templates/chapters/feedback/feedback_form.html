@@ -1,0 +1,219 @@
+{% extends 'chapters/base.html' %}
+
+{% block title %}Обратная связь - Cisco Networking Academy{% endblock %}
+
+{% block content %}
+<div class="feedback-container">
+    <div class="feedback-form">
+        <h2>Форма обратной связи</h2>
+        <p>Пожалуйста, опишите вашу проблему, вопрос или предложение. Мы постараемся ответить как можно скорее.</p>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="{{ form.feedback_type.id_for_label }}">Тип обращения:</label>
+                {{ form.feedback_type }}
+                {% if form.feedback_type.errors %}
+                <div class="field-errors">
+                    {% for error in form.feedback_type.errors %}
+                    <span class="error">{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.subject.id_for_label }}">Тема:</label>
+                {{ form.subject }}
+                {% if form.subject.errors %}
+                <div class="field-errors">
+                    {% for error in form.subject.errors %}
+                    <span class="error">{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.message.id_for_label }}">Сообщение:</label>
+                {{ form.message }}
+                {% if form.message.errors %}
+                <div class="field-errors">
+                    {% for error in form.message.errors %}
+                    <span class="error">{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="{{ form.module.id_for_label }}">Модуль (если применимо):</label>
+                    {{ form.module }}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.chapter.id_for_label }}">Глава (если применимо):</label>
+                    {{ form.chapter }}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.section.id_for_label }}">Раздел (если применимо):</label>
+                    {{ form.section }}
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Отправить обращение</button>
+        </form>
+    </div>
+</div>
+
+<style>
+.feedback-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+}
+
+.feedback-form {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+    color: #005073;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+textarea.form-control {
+    min-height: 150px;
+    resize: vertical;
+}
+
+select.form-control {
+    background: white;
+}
+
+.btn-primary {
+    background: #005073;
+    color: white;
+    padding: 0.75rem 2rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: #0078a8;
+}
+
+.field-errors {
+    color: #c62828;
+    font-size: 0.9em;
+    margin-top: 0.25rem;
+}
+
+.error {
+    display: block;
+}
+
+@media (max-width: 768px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .feedback-container {
+        padding: 1rem;
+    }
+
+    .feedback-form {
+        padding: 1.5rem;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const moduleSelect = document.getElementById('id_module');
+    const chapterSelect = document.getElementById('id_chapter');
+    const sectionSelect = document.getElementById('id_section');
+
+    // Обработчик изменения модуля
+    if (moduleSelect) {
+        moduleSelect.addEventListener('change', function() {
+            const moduleId = this.value;
+
+            // Очищаем главы и разделы
+            chapterSelect.innerHTML = '<option value="">---------</option>';
+            sectionSelect.innerHTML = '<option value="">---------</option>';
+
+            if (moduleId) {
+                // Загружаем главы для выбранного модуля
+                fetch(`/api/chapters/?module=${moduleId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        data.chapters.forEach(chapter => {
+                            const option = document.createElement('option');
+                            option.value = chapter.id;
+                            option.textContent = `Глава ${chapter.number}. ${chapter.title}`;
+                            chapterSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+        });
+    }
+
+    // Обработчик изменения главы
+    if (chapterSelect) {
+        chapterSelect.addEventListener('change', function() {
+            const chapterId = this.value;
+
+            // Очищаем разделы
+            sectionSelect.innerHTML = '<option value="">---------</option>';
+
+            if (chapterId) {
+                // Загружаем разделы для выбранной главы
+                fetch(`/api/sections/?chapter=${chapterId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        data.sections.forEach(section => {
+                            const option = document.createElement('option');
+                            option.value = section.id;
+                            option.textContent = `${section.code} ${section.title}`;
+                            sectionSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
