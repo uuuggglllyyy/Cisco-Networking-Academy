@@ -29,11 +29,27 @@
             border-left: 4px solid #005073;
             margin: 15px 0;
         }
+        .admin-actions {
+            background: #e8f5e8;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+            border-left: 3px solid #4caf50;
+        }
         .footer {
             text-align: center;
             margin-top: 20px;
             font-size: 0.9em;
             color: #666;
+        }
+        .btn {
+            display: inline-block;
+            background: #005073;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 4px;
+            margin: 5px;
         }
     </style>
 </head>
@@ -50,6 +66,7 @@
             <p><strong>От:</strong> {{ feedback.user.username }} ({{ feedback.user.email }})</p>
             <p><strong>Тип:</strong> {{ feedback.get_feedback_type_display }}</p>
             <p><strong>Тема:</strong> {{ feedback.subject }}</p>
+            <p><strong>Статус:</strong> {{ feedback.get_status_display }}</p>
             <p><strong>Дата:</strong> {{ feedback.created_at|date:"d.m.Y H:i" }}</p>
         </div>
 
@@ -61,17 +78,28 @@
         {% if feedback.module or feedback.chapter or feedback.section %}
         <h3>Контекст курса:</h3>
         <div style="background: white; padding: 15px; border-radius: 4px;">
-            {% if feedback.module %}Модуль: {{ feedback.module.title }}{% endif %}
-            {% if feedback.chapter %} → Глава: {{ feedback.chapter.title }}{% endif %}
-            {% if feedback.section %} → Раздел: {{ feedback.section.title }}{% endif %}
+            {% if feedback.module %}<strong>Модуль:</strong> {{ feedback.module.title }}{% endif %}
+            {% if feedback.chapter %}<br><strong>Глава:</strong> {{ feedback.chapter.title }}{% endif %}
+            {% if feedback.section %}<br><strong>Раздел:</strong> {{ feedback.section.title }}{% endif %}
         </div>
         {% endif %}
 
-        <p>Для ответа на обращение перейдите в <a href="http://ktpt.fun/admin/chapters/feedback/">панель администратора</a>.</p>
+        <div class="admin-actions">
+            <h3>Действия:</h3>
+            <a href="http://ktpt.fun/admin/chapters/feedback/{{ feedback.id }}/change/" class="btn">
+                📋 Ответить на обращение
+            </a>
+            <a href="http://ktpt.fun/admin/chapters/feedback/" class="btn">
+                📊 Все обращения
+            </a>
+        </div>
+
+        <p><small>Это уведомление отправлено {{ recipient_count }} получателям</small></p>
     </div>
 
     <div class="footer">
         <p>С уважением,<br>Система уведомлений Cisco Networking Academy</p>
+        <p><small>Email для ответов: {{ config.feedback_email }}</small></p>
     </div>
 </body>
 </html>

@@ -3,7 +3,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
-from .models import Module, Chapter, Section, UserProfile, Feedback
+from .models import Module, Chapter, Section, UserProfile, Feedback, FeedbackConfig
 
 
 # СУЩЕСТВУЮЩИЕ КЛАССЫ ОСТАЮТСЯ
@@ -90,3 +90,15 @@ class FeedbackAdmin(admin.ModelAdmin):
 # ПЕРЕРЕГИСТРИРУЕМ ПОЛЬЗОВАТЕЛЯ
 admin.site.unregister(User)
 admin.site.register(User, CustomUserAdmin)
+
+
+@admin.register(FeedbackConfig)
+class FeedbackConfigAdmin(admin.ModelAdmin):
+    list_display = ['notify_admins', 'auto_response_enabled', 'feedback_email']
+
+    def has_add_permission(self, request):
+        # Разрешаем создавать только одну запись
+        return not FeedbackConfig.objects.exists()
+
+    def has_delete_permission(self, request, obj=None):
+        return False

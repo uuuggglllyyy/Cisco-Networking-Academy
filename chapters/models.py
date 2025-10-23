@@ -121,6 +121,60 @@ class Feedback(models.Model):
         return f"Обратная связь от {self.user.username}: {self.subject}"
 
 
+class FeedbackConfig(models.Model):
+    """Настройки системы обратной связи"""
+    notify_admins = models.BooleanField(default=True, verbose_name="Уведомлять администраторов")
+    notify_emails = models.TextField(
+        blank=True,
+        verbose_name="Дополнительные email для уведомлений",
+        help_text="По одному email на строку"
+    )
+    auto_response_enabled = models.BooleanField(
+        default=True,
+        verbose_name="Включить авто-ответ пользователю"
+    )
+    auto_response_subject = models.CharField(
+        max_length=200,
+        default="Мы получили ваше обращение",
+        verbose_name="Тема авто-ответа"
+    )
+    auto_response_message = models.TextField(
+        default="Благодарим за обращение! Мы рассмотрим его в ближайшее время.",
+        verbose_name="Текст авто-ответа"
+    )
+    feedback_email = models.EmailField(
+        default='great.egor7288@yandex.ru',
+        verbose_name="Email для ответов на обращения"
+    )
+
+    class Meta:
+        verbose_name = 'Настройка обратной связи'
+        verbose_name_plural = 'Настройки обратной связи'
+
+    def __str__(self):
+        return "Настройки обратной связи"
+
+    def get_notify_emails_list(self):
+        """Преобразует текст в список email"""
+        if self.notify_emails:
+            return [email.strip() for email in self.notify_emails.split('\n') if email.strip()]
+        return []
+
+    def save(self, *args, **kwargs):
+        # Разрешаем только одну запись настроек
+        if not self.pk and FeedbackConfig.objects.exists():
+            # Обновляем существующую запись
+            existing = FeedbackConfig.objects.first()
+            existing.notify_admins = self.notify_admins
+            existing.notify_emails = self.notify_emails
+            existing.auto_response_enabled = self.auto_response_enabled
+            existing.auto_response_subject = self.auto_response_subject
+            existing.auto_response_message = self.auto_response_message
+            existing.feedback_email = self.feedback_email
+            return existing.save(*args, **kwargs)
+        return super().save(*args, **kwargs)
+
+
 # СИГНАЛЫ ДЛЯ АВТОМАТИЧЕСКОГО СОЗДАНИЯ ПРОФИЛЯ
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):

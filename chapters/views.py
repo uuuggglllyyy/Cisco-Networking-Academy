@@ -14,6 +14,8 @@ from django.utils.html import strip_tags
 from .models import Module, Chapter, Section, UserProfile, Feedback
 from .forms import RegistrationForm, FeedbackForm
 from django.http import JsonResponse
+from .feedback_utils import send_feedback_notifications, send_feedback_auto_response
+
 
 
 def module_list(request):
@@ -258,9 +260,11 @@ def feedback_view(request):
                 feedback.user = request.user
                 feedback.save()
 
-                # В режиме разработки не отправляем email
-                if not settings.DEBUG:
-                    send_feedback_notification(feedback)
+                # ВСЕГДА отправляем уведомления
+                send_feedback_notifications(feedback)
+
+                # Отправляем авто-ответ пользователю
+                send_feedback_auto_response(feedback)
 
                 return render(request, 'chapters/feedback/feedback_success.html')
 
@@ -280,26 +284,6 @@ def feedback_view(request):
 def my_feedback_view(request):
     feedbacks = Feedback.objects.filter(user=request.user).order_by('-created_at')
     return render(request, 'chapters/feedback/my_feedback.html', {'feedbacks': feedbacks})
-
-
-def send_feedback_notification(feedback):
-    admin_users = User.objects.filter(is_staff=True)
-    admin_emails = [user.email for user in admin_users if user.email]
-
-    if admin_emails:
-        subject = f'Новая обратная связь: {feedback.subject}'
-        html_message = render_to_string('chapters/emails/feedback_notification.html', {
-            'feedback': feedback,
-        })
-        plain_message = strip_tags(html_message)
-
-        send_mail(
-            subject,
-            plain_message,
-            settings.DEFAULT_FROM_EMAIL,
-            admin_emails,
-            html_message=html_message,
-        )
 
 
 # API ДЛЯ ПРОВЕРКИ СТАТУСА ПОЛЬЗОВАТЕЛЯ
