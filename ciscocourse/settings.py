@@ -103,7 +103,7 @@ EMAIL_USE_SSL = True  # ИСПРАВЛЕНО: для порта 465 исполь
 EMAIL_USE_TLS = False  # ИСПРАВЛЕНО: не используем TLS с SSL
 EMAIL_HOST_USER = 'great.egor7288@yandex.ru'
 EMAIL_HOST_PASSWORD = 'vuezzkkdvdleknmg'
-DEFAULT_FROM_EMAIL = 'Cisco Academy great.egor7288@yandex.ru'
+DEFAULT_FROM_EMAIL = 'Cisco Academy <great.egor7288@yandex.ru>'
 
 # REST Framework
 REST_FRAMEWORK = {
