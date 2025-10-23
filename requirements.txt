@@ -1,6 +1,6 @@
 django
 Pillow
 requests
-python-rest_framework
+django-rest_framework
 django-cors-headers
 whitenoise
