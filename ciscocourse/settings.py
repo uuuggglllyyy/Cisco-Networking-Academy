@@ -9,6 +9,14 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['10.0.14.57', '213.141.231.77', '195.161.62.100', 'ktpt.fun', '127.0.0.1']
 
+CSRF_TRUSTED_ORIGINS = [
+    'http://213.141.231.77:50005',
+    'http://213.141.231.77',
+    'http://10.0.14.57',
+    'http://127.0.0.1:8000',
+    'http://localhost:8000',
+]
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
