@@ -4,15 +4,18 @@
 
 {% block content %}
 <div class="auth-container">
-    <div class="auth-form">
-        <h2>Регистрация</h2>
+    <div class="auth-card">
+        <div class="auth-header">
+            <h2>Регистрация</h2>
+            <p>Создайте аккаунт для начала обучения</p>
+        </div>
 
-        <form method="post">
+        <form method="post" class="auth-form">
             {% csrf_token %}
 
             {% for field in form %}
             <div class="form-group">
-                <label for="{{ field.id_for_label }}">{{ field.label }}:</label>
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
                 {{ field }}
                 {% if field.errors %}
                 <div class="field-errors">
@@ -27,7 +30,7 @@
             </div>
             {% endfor %}
 
-            <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+            <button type="submit" class="btn btn-primary btn-full">Зарегистрироваться</button>
         </form>
 
         <div class="auth-links">
@@ -38,16 +41,36 @@
 
 <style>
 .auth-container {
-    max-width: 400px;
-    margin: 2rem auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 70vh;
     padding: 2rem;
 }
 
-.auth-form {
-    background: white;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+.auth-card {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 450px;
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.auth-header h2 {
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+    font-size: 1.5rem;
+}
+
+.auth-header p {
+    color: var(--text-light);
+    font-size: 0.95rem;
 }
 
 .form-group {
@@ -57,63 +80,93 @@
 .form-group label {
     display: block;
     margin-bottom: 0.5rem;
-    font-weight: bold;
-    color: #005073;
+    font-weight: 600;
+    color: var(--text);
+    font-size: 0.9rem;
 }
 
 .form-control {
     width: 100%;
-    padding: 0.75rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
     font-size: 1rem;
-    box-sizing: border-box;
+    transition: var(--transition);
+    background: var(--bg);
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(0, 80, 115, 0.1);
 }
 
 .btn-primary {
-    background: #005073;
+    background: var(--primary);
     color: white;
-    padding: 0.75rem 1.5rem;
     border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    width: 100%;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius);
     font-size: 1rem;
-    transition: background 0.3s ease;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
 }
 
 .btn-primary:hover {
-    background: #0078a8;
+    background: var(--primary-light);
+    transform: translateY(-1px);
+}
+
+.btn-full {
+    width: 100%;
+    margin-top: 1rem;
 }
 
 .field-errors {
     color: #c62828;
-    font-size: 0.9em;
-    margin-top: 0.25rem;
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
 }
 
 .error {
     display: block;
+    margin-bottom: 0.25rem;
 }
 
 .help-text {
-    font-size: 0.8em;
-    color: #666;
-    margin-top: 0.25rem;
+    font-size: 0.8rem;
+    color: var(--text-light);
+    margin-top: 0.5rem;
+    line-height: 1.4;
 }
 
 .auth-links {
-    margin-top: 1rem;
     text-align: center;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
 }
 
 .auth-links a {
-    color: #005073;
+    color: var(--primary);
     text-decoration: none;
+    font-weight: 600;
+    transition: var(--transition);
 }
 
 .auth-links a:hover {
-    text-decoration: underline;
+    color: var(--primary-light);
+}
+
+@media (max-width: 768px) {
+    .auth-container {
+        padding: 1rem;
+    }
+
+    .auth-card {
+        padding: 2rem;
+    }
 }
 </style>
 {% endblock %}

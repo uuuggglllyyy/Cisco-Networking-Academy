@@ -3,22 +3,94 @@
 {% block title %}{{ module.title }} - Cisco Networking Academy{% endblock %}
 
 {% block content %}
-<h2>Модуль {{ module.number }}. {{ module.title }}</h2>
-{% if module.description %}
-<p>{{ module.description }}</p>
-{% endif %}
+<nav class="breadcrumb">
+    <a href="{% url 'module_list' %}">Модули</a>
+    <span class="separator">/</span>
+    <span>Модуль {{ module.number }}</span>
+</nav>
 
-<h3>Главы:</h3>
-<div class="chapter-list">
-    {% for chapter in chapters %}
-    <a href="{% url 'chapter_detail' module.id chapter.id %}" class="chapter-card">
-        <h4>Глава {{ chapter.number }}. {{ chapter.title }}</h4>
-        {% if chapter.description %}
-        <p>{{ chapter.description }}</p>
-        {% endif %}
-    </a>
-    {% endfor %}
+<div class="content-section">
+    <div class="content-header">
+        <h1>Модуль {{ module.number }}. {{ module.title }}</h1>
+        <p>{{ module.description }}</p>
+    </div>
+
+    <div class="content-body">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h2 style="margin: 0;">Главы модуля</h2>
+            <div style="font-size: 0.9rem; color: var(--text-light);">
+                Всего глав: <strong>{{ chapters|length }}</strong>
+            </div>
+        </div>
+
+        <div class="items-grid">
+            {% for chapter in chapters %}
+            {% with chapter_progress=chapter.progress %}
+            <a href="{% url 'chapter_detail' module.id chapter.id %}" class="item-card">
+                <div class="item-header">
+                    <div class="item-number">Глава {{ chapter.number }}</div>
+                    <div class="item-stats">
+                        <span title="Количество разделов">
+                            📑 {{ chapter.sections.count }}
+                        </span>
+                        {% if chapter_progress.progress_percentage > 0 %}
+                        <span title="Прогресс">
+                            {{ chapter_progress.progress_percentage }}%
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <h3>{{ chapter.title }}</h3>
+                {% if chapter.description %}
+                <p>{{ chapter.description|truncatewords:15 }}</p>
+                {% endif %}
+
+                {% if chapter_progress.progress_percentage > 0 %}
+                <div class="progress-bar" style="margin: 1rem 0; width: 100%; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden;">
+                    <div class="progress-fill" style="height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.5s ease; width: {{ chapter_progress.progress_percentage }}%"></div>
+                </div>
+                {% endif %}
+
+                <div class="item-meta">
+                    <span class="status-badge {% if chapter_progress.progress_percentage == 100 %}status-completed{% elif chapter_progress.progress_percentage > 0 %}status-in-progress{% else %}status-not-started{% endif %}">
+                        {% if chapter_progress.progress_percentage == 100 %}✓ Завершена
+                        {% elif chapter_progress.progress_percentage > 0 %}⏳ В процессе
+                        {% else %}● Не начата{% endif %}
+                    </span>
+                    <span>{{ chapter_progress.completed_sections }}/{{ chapter_progress.total_sections }} разделов</span>
+                </div>
+            </a>
+            {% endwith %}
+            {% endfor %}
+        </div>
+    </div>
 </div>
 
-<a href="{% url 'module_list' %}">← Назад к списку модулей</a>
+<style>
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.status-completed {
+    background: #e8f5e8;
+    color: #2e7d32;
+}
+
+.status-in-progress {
+    background: #fff3e0;
+    color: #ef6c00;
+}
+
+.status-not-started {
+    background: #f5f5f5;
+    color: #757575;
+}
+</style>
 {% endblock %}

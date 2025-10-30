@@ -4,92 +4,165 @@
 
 {% block content %}
 <div class="success-container">
-    <div class="success-message">
+    <div class="success-card">
         <div class="success-icon">✓</div>
-        <h2>Обращение успешно отправлено!</h2>
-        <p>Благодарим вас за обратную связь. Мы рассмотрим ваше обращение в ближайшее время и свяжемся с вами при необходимости.</p>
+        <h1>Обращение успешно отправлено!</h1>
+        <p class="success-message">
+            Благодарим вас за обратную связь. Мы рассмотрим ваше обращение в ближайшее время
+            и свяжемся с вами по указанному email при необходимости.
+        </p>
+
+        <div class="success-details">
+            <div class="detail-item">
+                <span class="detail-label">Среднее время ответа:</span>
+                <span class="detail-value">1-2 рабочих дня</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Статус обращения:</span>
+                <span class="detail-value status-new">Новое</span>
+            </div>
+        </div>
 
         <div class="success-actions">
-            <a href="{% url 'my_feedback' %}" class="btn btn-primary">Мои обращения</a>
-            <a href="{% url 'module_list' %}" class="btn btn-secondary">На главную</a>
+            <a href="{% url 'my_feedback' %}" class="btn btn-primary">
+                📋 Мои обращения
+            </a>
+            <a href="{% url 'module_list' %}" class="btn btn-outline">
+                🏠 На главную
+            </a>
+        </div>
+
+        <div class="success-footer">
+            <p>По срочным вопросам вы можете связаться с поддержкой по email:
+               <a href="mailto:support@ciscoacademy.ru">support@ciscoacademy.ru</a>
+            </p>
         </div>
     </div>
 </div>
 
 <style>
 .success-container {
-    max-width: 600px;
-    margin: 2rem auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh;
     padding: 2rem;
-    text-align: center;
 }
 
-.success-message {
-    background: white;
-    padding: 3rem 2rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+.success-card {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 3rem;
+    text-align: center;
+    max-width: 600px;
+    width: 100%;
+    border: 1px solid var(--border);
 }
 
 .success-icon {
     font-size: 4rem;
     color: #4caf50;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
 }
 
-.success-message h2 {
-    color: #005073;
-    margin-bottom: 1rem;
+.success-card h1 {
+    color: var(--primary);
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
 }
 
-.success-message p {
-    color: #666;
+.success-message {
+    color: var(--text);
     line-height: 1.6;
     margin-bottom: 2rem;
+    font-size: 1.05rem;
+}
+
+.success-details {
+    background: var(--bg);
+    padding: 1.5rem;
+    border-radius: var(--radius);
+    margin-bottom: 2rem;
+    text-align: left;
+}
+
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.detail-item:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.detail-label {
+    color: var(--text-light);
+    font-weight: 500;
+}
+
+.detail-value {
+    color: var(--text);
+    font-weight: 600;
+}
+
+.status-new {
+    color: #1976d2;
+    background: #e3f2fd;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
 }
 
 .success-actions {
     display: flex;
     gap: 1rem;
     justify-content: center;
+    margin-bottom: 2rem;
     flex-wrap: wrap;
 }
 
-.btn {
-    padding: 0.75rem 1.5rem;
-    border-radius: 4px;
+.success-footer {
+    border-top: 1px solid var(--border);
+    padding-top: 1.5rem;
+    font-size: 0.9rem;
+    color: var(--text-light);
+}
+
+.success-footer a {
+    color: var(--primary);
     text-decoration: none;
-    font-weight: bold;
-    transition: all 0.3s ease;
+    font-weight: 500;
 }
 
-.btn-primary {
-    background: #005073;
-    color: white;
-}
-
-.btn-primary:hover {
-    background: #0078a8;
-}
-
-.btn-secondary {
-    background: #f5f5f5;
-    color: #333;
-    border: 1px solid #ddd;
-}
-
-.btn-secondary:hover {
-    background: #e0e0e0;
+.success-footer a:hover {
+    text-decoration: underline;
 }
 
 @media (max-width: 768px) {
+    .success-card {
+        padding: 2rem;
+    }
+
     .success-actions {
         flex-direction: column;
     }
 
-    .btn {
-        width: 100%;
-        text-align: center;
+    .detail-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+
+    .success-container {
+        padding: 1rem;
     }
 }
 </style>

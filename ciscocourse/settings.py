@@ -5,7 +5,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-8^v!@#k&+m$%p2q9r7t5y3u1w4e6z0x*c-v_b(n)d=f=g_h{j]l;o[i'
 
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['10.0.14.57', '213.141.231.77', '195.161.62.100', 'ktpt.fun', '127.0.0.1']
 
@@ -15,6 +15,8 @@ CSRF_TRUSTED_ORIGINS = [
     'http://10.0.14.57',
     'http://127.0.0.1:8000',
     'http://localhost:8000',
+    'http://ktpt.fun:50005',
+    'http://ktpt.fun'
 ]
 
 INSTALLED_APPS = [
@@ -55,6 +57,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'chapters.context_processors.global_context',
             ],
         },
     },

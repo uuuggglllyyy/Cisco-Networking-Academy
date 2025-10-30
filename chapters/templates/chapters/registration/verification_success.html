@@ -4,48 +4,115 @@
 
 {% block content %}
 <div class="success-container">
-    <div class="success-message">
+    <div class="success-card">
         <div class="success-icon">✅</div>
-        <h2>Email успешно подтвержден!</h2>
-        <p>Ваш аккаунт активирован. Теперь вы можете войти в систему и начать обучение.</p>
+        <h1>Email успешно подтвержден!</h1>
+        <p class="success-message">
+            Ваш аккаунт активирован. Теперь вы можете войти в систему и начать обучение
+            в Cisco Networking Academy.
+        </p>
+
+        <div class="success-features">
+            <div class="feature">
+                <span class="feature-icon">📚</span>
+                <span>Доступ ко всем модулям курса</span>
+            </div>
+            <div class="feature">
+                <span class="feature-icon">🤖</span>
+                <span>Помощь AI-ассистента</span>
+            </div>
+            <div class="feature">
+                <span class="feature-icon">💬</span>
+                <span>Обратная связь с преподавателями</span>
+            </div>
+        </div>
 
         <div class="success-actions">
-            <a href="{% url 'login' %}" class="btn btn-primary">Войти в систему</a>
-            <a href="{% url 'module_list' %}" class="btn btn-secondary">На главную</a>
+            <a href="{% url 'login' %}" class="btn btn-primary btn-large">
+                Войти в систему
+            </a>
+            <a href="{% url 'module_list' %}" class="btn btn-outline">
+                Начать обучение
+            </a>
         </div>
     </div>
 </div>
 
 <style>
 .success-container {
-    max-width: 500px;
-    margin: 2rem auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 70vh;
     padding: 2rem;
-    text-align: center;
 }
 
-.success-message {
-    background: white;
-    padding: 3rem 2rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+.success-card {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 3rem;
+    text-align: center;
+    max-width: 500px;
+    width: 100%;
+    border: 1px solid var(--border);
 }
 
 .success-icon {
     font-size: 4rem;
     color: #4caf50;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
 }
 
-.success-message h2 {
-    color: #005073;
-    margin-bottom: 1rem;
+.success-card h1 {
+    color: var(--primary);
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
 }
 
-.success-message p {
-    color: #666;
+.success-message {
+    color: var(--text);
     line-height: 1.6;
-    margin-bottom: 2rem;
+    margin-bottom: 2.5rem;
+    font-size: 1.05rem;
+}
+
+.success-features {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+    background: var(--bg);
+    padding: 1.5rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+}
+
+.feature {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem;
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    transition: var(--transition);
+}
+
+.feature:hover {
+    transform: translateX(5px);
+}
+
+.feature-icon {
+    font-size: 1.2rem;
+    width: 2rem;
+    text-align: center;
+}
+
+.feature span:last-child {
+    color: var(--text);
+    font-weight: 500;
+    flex: 1;
+    text-align: left;
 }
 
 .success-actions {
@@ -55,41 +122,32 @@
     flex-wrap: wrap;
 }
 
-.btn {
-    padding: 0.75rem 1.5rem;
-    border-radius: 4px;
-    text-decoration: none;
-    font-weight: bold;
-    transition: all 0.3s ease;
-}
-
-.btn-primary {
-    background: #005073;
-    color: white;
-}
-
-.btn-primary:hover {
-    background: #0078a8;
-}
-
-.btn-secondary {
-    background: #f5f5f5;
-    color: #333;
-    border: 1px solid #ddd;
-}
-
-.btn-secondary:hover {
-    background: #e0e0e0;
+.btn-large {
+    padding: 0.75rem 2rem;
+    font-size: 1rem;
 }
 
 @media (max-width: 768px) {
+    .success-card {
+        padding: 2rem;
+    }
+
     .success-actions {
         flex-direction: column;
     }
 
-    .btn {
-        width: 100%;
+    .feature {
+        flex-direction: column;
         text-align: center;
+        gap: 0.5rem;
+    }
+
+    .feature span:last-child {
+        text-align: center;
+    }
+
+    .success-container {
+        padding: 1rem;
     }
 }
 </style>

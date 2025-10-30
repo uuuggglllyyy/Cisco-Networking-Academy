@@ -3,64 +3,71 @@
 {% block title %}Мои обращения - Cisco Networking Academy{% endblock %}
 
 {% block content %}
-<div class="feedback-container">
-    <h2>Мои обращения</h2>
+<div class="content-section">
+    <div class="content-header">
+        <h1>Мои обращения</h1>
+        <p>История ваших вопросов и обращений в поддержку</p>
+    </div>
 
-    {% if feedbacks %}
-        <div class="feedback-list">
-            {% for feedback in feedbacks %}
-            <div class="feedback-item {% if feedback.status == 'new' %}status-new{% elif feedback.status == 'in_progress' %}status-in-progress{% elif feedback.status == 'resolved' %}status-resolved{% else %}status-closed{% endif %}">
-                <div class="feedback-header">
-                    <h3>{{ feedback.subject }}</h3>
-                    <span class="feedback-status">{{ feedback.get_status_display }}</span>
-                </div>
+    <div class="content-body">
+        {% if feedbacks %}
+            <div class="feedback-list">
+                {% for feedback in feedbacks %}
+                <div class="feedback-item status-{{ feedback.status }}">
+                    <div class="feedback-header">
+                        <div class="feedback-main">
+                            <h3>{{ feedback.subject }}</h3>
+                            <span class="feedback-type">{{ feedback.get_feedback_type_display }}</span>
+                        </div>
+                        <div class="feedback-meta">
+                            <span class="feedback-status status-{{ feedback.status }}">
+                                {{ feedback.get_status_display }}
+                            </span>
+                            <span class="feedback-date">{{ feedback.created_at|date:"d.m.Y H:i" }}</span>
+                        </div>
+                    </div>
 
-                <div class="feedback-meta">
-                    <span class="feedback-type">{{ feedback.get_feedback_type_display }}</span>
-                    <span class="feedback-date">{{ feedback.created_at|date:"d.m.Y H:i" }}</span>
-                </div>
+                    <div class="feedback-message">
+                        <p>{{ feedback.message|truncatewords:30 }}</p>
+                    </div>
 
-                <div class="feedback-message">
-                    <p>{{ feedback.message|truncatewords:30 }}</p>
-                </div>
+                    {% if feedback.module or feedback.chapter or feedback.section %}
+                    <div class="feedback-context">
+                        <strong>Контекст:</strong>
+                        {% if feedback.module %}Модуль {{ feedback.module.number }}{% endif %}
+                        {% if feedback.chapter %} → Глава {{ feedback.chapter.number }}{% endif %}
+                        {% if feedback.section %} → {{ feedback.section.code }}{% endif %}
+                    </div>
+                    {% endif %}
 
-                {% if feedback.module or feedback.chapter or feedback.section %}
-                <div class="feedback-context">
-                    <strong>Контекст:</strong>
-                    {% if feedback.module %}Модуль {{ feedback.module.number }}{% endif %}
-                    {% if feedback.chapter %} → Глава {{ feedback.chapter.number }}{% endif %}
-                    {% if feedback.section %} → {{ feedback.section.code }}{% endif %}
-                </div>
-                {% endif %}
+                    {% if feedback.admin_notes %}
+                    <div class="admin-response">
+                        <div class="response-header">
+                            <strong>Ответ администратора</strong>
+                            <span class="response-date">{{ feedback.updated_at|date:"d.m.Y H:i" }}</span>
+                        </div>
+                        <p>{{ feedback.admin_notes }}</p>
+                    </div>
+                    {% endif %}
 
-                {% if feedback.admin_notes %}
-                <div class="admin-notes">
-                    <strong>Ответ администратора:</strong>
-                    <p>{{ feedback.admin_notes }}</p>
+                    <div class="feedback-actions">
+                        <a href="{% url 'feedback' %}?edit={{ feedback.id }}" class="btn btn-outline">Детали</a>
+                    </div>
                 </div>
-                {% endif %}
-
-                <div class="feedback-actions">
-                    <a href="{% url 'feedback' %}?edit={{ feedback.id }}" class="btn btn-small">Детали</a>
-                </div>
+                {% endfor %}
             </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <div class="no-feedback">
-            <p>У вас пока нет отправленных обращений.</p>
-            <a href="{% url 'feedback' %}" class="btn btn-primary">Создать обращение</a>
-        </div>
-    {% endif %}
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">💬</div>
+                <h3>У вас пока нет обращений</h3>
+                <p>Если у вас есть вопросы или проблемы, создайте первое обращение в поддержку.</p>
+                <a href="{% url 'feedback' %}" class="btn btn-primary">Создать обращение</a>
+            </div>
+        {% endif %}
+    </div>
 </div>
 
 <style>
-.feedback-container {
-    max-width: 800px;
-    margin: 2rem auto;
-    padding: 2rem;
-}
-
 .feedback-list {
     display: flex;
     flex-direction: column;
@@ -68,27 +75,31 @@
 }
 
 .feedback-item {
-    background: white;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
     padding: 1.5rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    border-left: 4px solid #ddd;
+    transition: var(--transition);
+}
+
+.feedback-item:hover {
+    box-shadow: var(--shadow);
 }
 
 .feedback-item.status-new {
-    border-left-color: #2196f3;
+    border-left: 4px solid #2196f3;
 }
 
-.feedback-item.status-in-progress {
-    border-left-color: #ff9800;
+.feedback-item.status-in_progress {
+    border-left: 4px solid #ff9800;
 }
 
 .feedback-item.status-resolved {
-    border-left-color: #4caf50;
+    border-left: 4px solid #4caf50;
 }
 
 .feedback-item.status-closed {
-    border-left-color: #9e9e9e;
+    border-left: 4px solid #9e9e9e;
 }
 
 .feedback-header {
@@ -96,79 +107,92 @@
     justify-content: space-between;
     align-items: flex-start;
     margin-bottom: 1rem;
+    gap: 1rem;
 }
 
-.feedback-header h3 {
-    margin: 0;
-    color: #005073;
+.feedback-main {
     flex: 1;
 }
 
-.feedback-status {
+.feedback-main h3 {
+    margin: 0 0 0.5rem 0;
+    color: var(--text);
+    font-size: 1.1rem;
+}
+
+.feedback-type {
+    display: inline-block;
+    background: var(--bg);
+    color: var(--text-light);
     padding: 0.25rem 0.75rem;
     border-radius: 12px;
-    font-size: 0.8em;
-    font-weight: bold;
-    text-transform: uppercase;
-}
-
-.status-new .feedback-status {
-    background: #e3f2fd;
-    color: #1976d2;
-}
-
-.status-in-progress .feedback-status {
-    background: #fff3e0;
-    color: #f57c00;
-}
-
-.status-resolved .feedback-status {
-    background: #e8f5e8;
-    color: #388e3c;
-}
-
-.status-closed .feedback-status {
-    background: #f5f5f5;
-    color: #616161;
+    font-size: 0.8rem;
+    font-weight: 500;
 }
 
 .feedback-meta {
     display: flex;
-    gap: 1rem;
-    margin-bottom: 1rem;
-    font-size: 0.9em;
-    color: #666;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
 }
 
-.feedback-type {
-    background: #f5f5f5;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
+.feedback-status {
+    padding: 0.35rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-new { background: #e3f2fd; color: #1976d2; }
+.status-in_progress { background: #fff3e0; color: #f57c00; }
+.status-resolved { background: #e8f5e8; color: #388e3c; }
+.status-closed { background: #f5f5f5; color: #616161; }
+
+.feedback-date {
+    font-size: 0.8rem;
+    color: var(--text-light);
 }
 
 .feedback-message {
     margin-bottom: 1rem;
     line-height: 1.5;
+    color: var(--text);
 }
 
 .feedback-context {
-    background: #f8f9fa;
+    background: var(--bg);
     padding: 0.75rem;
-    border-radius: 4px;
+    border-radius: var(--radius);
     margin-bottom: 1rem;
-    font-size: 0.9em;
+    font-size: 0.9rem;
+    color: var(--text-light);
 }
 
-.admin-notes {
+.admin-response {
     background: #e8f5e8;
     padding: 1rem;
-    border-radius: 4px;
+    border-radius: var(--radius);
     margin-bottom: 1rem;
     border-left: 3px solid #4caf50;
 }
 
-.admin-notes strong {
+.response-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.response-header strong {
     color: #2e7d32;
+}
+
+.response-date {
+    font-size: 0.8rem;
+    color: #666;
 }
 
 .feedback-actions {
@@ -176,59 +200,79 @@
 }
 
 .btn {
+    display: inline-block;
     padding: 0.5rem 1rem;
-    border-radius: 4px;
+    border-radius: var(--radius);
     text-decoration: none;
-    font-size: 0.9em;
-    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: var(--transition);
+    border: none;
+    cursor: pointer;
 }
 
 .btn-primary {
-    background: #005073;
+    background: var(--primary);
     color: white;
 }
 
 .btn-primary:hover {
-    background: #0078a8;
+    background: var(--primary-light);
 }
 
-.btn-small {
-    background: #f5f5f5;
-    color: #333;
-    border: 1px solid #ddd;
+.btn-outline {
+    background: transparent;
+    color: var(--primary);
+    border: 1px solid var(--primary);
 }
 
-.btn-small:hover {
-    background: #e0e0e0;
+.btn-outline:hover {
+    background: var(--primary);
+    color: white;
 }
 
-.no-feedback {
+.empty-state {
     text-align: center;
-    padding: 3rem;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 3rem 2rem;
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    border: 2px dashed var(--border);
 }
 
-.no-feedback p {
-    color: #666;
-    margin-bottom: 1.5rem;
-    font-size: 1.1em;
+.empty-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.empty-state h3 {
+    color: var(--text);
+    margin-bottom: 1rem;
+}
+
+.empty-state p {
+    color: var(--text-light);
+    margin-bottom: 2rem;
+    max-width: 300px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 @media (max-width: 768px) {
     .feedback-header {
         flex-direction: column;
-        gap: 0.5rem;
+        align-items: flex-start;
     }
 
     .feedback-meta {
-        flex-direction: column;
-        gap: 0.5rem;
+        flex-direction: row;
+        align-items: center;
+        width: 100%;
+        justify-content: space-between;
     }
 
-    .feedback-container {
-        padding: 1rem;
+    .content-body {
+        padding: 1.5rem;
     }
 }
 </style>

@@ -3,27 +3,189 @@
 {% block title %}{{ chapter.title }} - Cisco Networking Academy{% endblock %}
 
 {% block content %}
-<nav>
-    <a href="{% url 'module_list' %}">Модули</a> →
-    <a href="{% url 'module_detail' chapter.module.id %}">Модуль {{ chapter.module.number }}</a> →
+<nav class="breadcrumb">
+    <a href="{% url 'module_list' %}">Модули</a>
+    <span class="separator">/</span>
+    <a href="{% url 'module_detail' chapter.module.id %}">Модуль {{ chapter.module.number }}</a>
+    <span class="separator">/</span>
     <span>Глава {{ chapter.number }}</span>
 </nav>
 
-<h2>Глава {{ chapter.number }}. {{ chapter.title }}</h2>
-{% if chapter.description %}
-<p>{{ chapter.description }}</p>
-{% endif %}
+<div class="content-section">
+    <div class="content-header">
+        <h1>Глава {{ chapter.number }}. {{ chapter.title }}</h1>
+        {% if chapter.description %}
+        <p>{{ chapter.description }}</p>
+        {% endif %}
+    </div>
 
-<h3>Разделы:</h3>
-<ul class="section-list">
-    {% for section in sections %}
-    <li class="section-item">
-        <a href="{% url 'section_detail' chapter.module.id chapter.id section.id %}" class="section-link">
-            <strong>{{ section.code }}</strong> - {{ section.title }}
-        </a>
-    </li>
-    {% endfor %}
-</ul>
+    <div class="content-body">
+        <!-- Прогресс главы -->
+        <div class="progress-card" style="background: var(--bg); padding: 1.5rem; border-radius: var(--radius); margin-bottom: 2rem; border: 1px solid var(--border);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h3 style="margin: 0;">Прогресс главы</h3>
+                <div style="font-size: 0.9rem; color: var(--text-light);">
+                    Разделов: <strong>{{ chapter_progress.completed_sections }}/{{ chapter_progress.total_sections }}</strong>
+                </div>
+            </div>
+            <div class="progress-info" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <span style="font-size: 0.9rem;">Общий прогресс</span>
+                <span style="font-weight: 600; color: var(--primary);">{{ chapter_progress.progress_percentage }}%</span>
+            </div>
+            <div class="progress-bar" style="width: 100%; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden;">
+                <div class="progress-fill" style="height: 100%; background: var(--accent); border-radius: 4px; width: {{ chapter_progress.progress_percentage }}%"></div>
+            </div>
+            <div style="margin-top: 1rem; display: flex; gap: 1rem;">
+                <span class="status-badge {% if chapter_progress.progress_percentage == 100 %}status-completed{% elif chapter_progress.progress_percentage > 0 %}status-in-progress{% else %}status-not-started{% endif %}">
+                    {% if chapter_progress.progress_percentage == 100 %}✓ Завершена
+                    {% elif chapter_progress.progress_percentage > 0 %}⏳ В процессе
+                    {% else %}● Не начата{% endif %}
+                </span>
+            </div>
+        </div>
 
-<a href="{% url 'module_detail' chapter.module.id %}">← Назад к модулю</a>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h2 style="margin: 0;">Разделы главы</h2>
+            <div style="font-size: 0.9rem; color: var(--text-light);">
+                Всего разделов: <strong>{{ sections_with_progress|length }}</strong>
+            </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+            {% for item in sections_with_progress %}
+            {% with section=item.section status=item.status status_text=item.status_text %}
+            <a href="{% url 'section_detail' chapter.module.id chapter.id section.id %}"
+               class="item-card"
+               style="display: flex; align-items: flex-start; gap: 1rem; text-decoration: none; color: inherit;">
+                <div style="flex-shrink: 0; width: 40px; height: 40px; background: {% if status == 'completed' %}var(--accent){% else %}var(--primary){% endif %}; color: white; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; font-weight: 600; transition: var(--transition);">
+                    {% if status == 'completed' %}✓{% else %}{{ forloop.counter }}{% endif %}
+                </div>
+                <div style="flex: 1;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                        <h3 style="margin: 0; font-size: 1.1rem; color: var(--text);">{{ section.code }} {{ section.title }}</h3>
+                        <div class="status-badge {% if status == 'completed' %}status-completed{% else %}status-not-started{% endif %}" style="font-size: 0.7rem;">
+                            {{ status_text }}
+                        </div>
+                    </div>
+                    {% if section.content %}
+                    <p style="color: var(--text-light); font-size: 0.9rem; line-height: 1.4; margin-bottom: 0.5rem;">
+                        {{ section.content|striptags|truncatewords:25 }}
+                    </p>
+                    {% endif %}
+                    <div style="display: flex; gap: 1rem; font-size: 0.8rem; color: var(--text-light);">
+                        <span>📖 {% widthratio section.content|wordcount 200 1 %} мин чтения</span>
+                        {% if section.attached_file %}
+                        <span>📎 Материалы</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </a>
+            {% endwith %}
+            {% endfor %}
+        </div>
+
+        <!-- Навигация -->
+        <div class="section-navigation" style="display: flex; justify-content: space-between; align-items: center; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border); flex-wrap: wrap; gap: 1rem;">
+            <a href="{% url 'module_detail' chapter.module.id %}" class="btn btn-outline">
+                ← Назад к модулю
+            </a>
+
+            {% if chapter_progress.progress_percentage == 100 %}
+            <div class="completion-message" style="display: flex; align-items: center; gap: 0.5rem; color: var(--accent); font-weight: 600;">
+                <span>✓ Глава завершена!</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.progress-card {
+    border: 1px solid var(--border);
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    transition: var(--transition);
+}
+
+.status-completed {
+    background: #e8f5e8;
+    color: #2e7d32;
+}
+
+.status-in-progress {
+    background: #fff3e0;
+    color: #ef6c00;
+}
+
+.status-not-started {
+    background: #f5f5f5;
+    color: #757575;
+}
+
+.item-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+}
+
+.item-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+    border-color: var(--primary);
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: var(--primary);
+    color: white;
+    text-decoration: none;
+    border-radius: var(--radius);
+    border: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: var(--transition);
+    cursor: pointer;
+}
+
+.btn-outline {
+    background: transparent;
+    color: var(--primary);
+    border: 1px solid var(--primary);
+}
+
+.btn-outline:hover {
+    background: var(--primary);
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .content-body {
+        padding: 1.5rem;
+    }
+
+    .item-card {
+        padding: 1rem;
+    }
+
+    .section-navigation {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+</style>
 {% endblock %}

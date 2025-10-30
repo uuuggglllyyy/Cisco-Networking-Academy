@@ -10,6 +10,13 @@ urlpatterns = [
     path('module/<int:module_id>/chapter/<int:chapter_id>/', views.chapter_detail, name='chapter_detail'),
     path('module/<int:module_id>/chapter/<int:chapter_id>/section/<int:section_id>/', views.section_detail,
          name='section_detail'),
+    path('api/section/<int:section_id>/complete/', views.mark_section_completed, name='mark_section_completed'),
+
+
+    # Управление прогрессом
+    path('progress/', views.progress_management, name='progress_management'),
+    path('api/progress/reset/', views.reset_progress, name='reset_progress'),
+    path('api/progress/export/', views.export_progress, name='export_progress'),
 
     # AI Assistant URLs
     path('ai-assistant/', views.ai_chat_page, name='ai_assistant'),

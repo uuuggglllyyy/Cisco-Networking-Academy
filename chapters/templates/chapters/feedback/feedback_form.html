@@ -3,84 +3,119 @@
 {% block title %}Обратная связь - Cisco Networking Academy{% endblock %}
 
 {% block content %}
-<div class="feedback-container">
-    <div class="feedback-form">
-        <h2>Форма обратной связи</h2>
-        <p>Пожалуйста, опишите вашу проблему, вопрос или предложение. Мы постараемся ответить как можно скорее.</p>
+<div class="content-section">
+    <div class="content-header">
+        <h1>Обратная связь</h1>
+        <p>Мы всегда готовы помочь с вопросами и предложениями</p>
+    </div>
 
-        <form method="post">
-            {% csrf_token %}
+    <div class="content-body">
+        <div class="feedback-form-container">
+            <form method="post" class="feedback-form">
+                {% csrf_token %}
 
-            <div class="form-group">
-                <label for="{{ form.feedback_type.id_for_label }}">Тип обращения:</label>
-                {{ form.feedback_type }}
-                {% if form.feedback_type.errors %}
-                <div class="field-errors">
-                    {% for error in form.feedback_type.errors %}
-                    <span class="error">{{ error }}</span>
-                    {% endfor %}
-                </div>
-                {% endif %}
-            </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.feedback_type.id_for_label }}">Тип обращения</label>
+                        {{ form.feedback_type }}
+                        {% if form.feedback_type.errors %}
+                        <div class="field-errors">
+                            {% for error in form.feedback_type.errors %}
+                            <span class="error">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
 
-            <div class="form-group">
-                <label for="{{ form.subject.id_for_label }}">Тема:</label>
-                {{ form.subject }}
-                {% if form.subject.errors %}
-                <div class="field-errors">
-                    {% for error in form.subject.errors %}
-                    <span class="error">{{ error }}</span>
-                    {% endfor %}
-                </div>
-                {% endif %}
-            </div>
-
-            <div class="form-group">
-                <label for="{{ form.message.id_for_label }}">Сообщение:</label>
-                {{ form.message }}
-                {% if form.message.errors %}
-                <div class="field-errors">
-                    {% for error in form.message.errors %}
-                    <span class="error">{{ error }}</span>
-                    {% endfor %}
-                </div>
-                {% endif %}
-            </div>
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="{{ form.module.id_for_label }}">Модуль (если применимо):</label>
-                    {{ form.module }}
+                    <div class="form-group">
+                        <label for="{{ form.subject.id_for_label }}">Тема обращения</label>
+                        {{ form.subject }}
+                        {% if form.subject.errors %}
+                        <div class="field-errors">
+                            {% for error in form.subject.errors %}
+                            <span class="error">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="{{ form.chapter.id_for_label }}">Глава (если применимо):</label>
-                    {{ form.chapter }}
+                    <label for="{{ form.message.id_for_label }}">Подробное описание</label>
+                    {{ form.message }}
+                    {% if form.message.errors %}
+                    <div class="field-errors">
+                        {% for error in form.message.errors %}
+                        <span class="error">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    <div class="help-text">Опишите вашу проблему, вопрос или предложение максимально подробно</div>
                 </div>
 
-                <div class="form-group">
-                    <label for="{{ form.section.id_for_label }}">Раздел (если применимо):</label>
-                    {{ form.section }}
-                </div>
-            </div>
+                <div class="form-section">
+                    <h3>Контекст курса (опционально)</h3>
+                    <div class="form-row triple">
+                        <div class="form-group">
+                            <label for="{{ form.module.id_for_label }}">Модуль</label>
+                            {{ form.module }}
+                        </div>
 
-            <button type="submit" class="btn btn-primary">Отправить обращение</button>
-        </form>
+                        <div class="form-group">
+                            <label for="{{ form.chapter.id_for_label }}">Глава</label>
+                            {{ form.chapter }}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.section.id_for_label }}">Раздел</label>
+                            {{ form.section }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary btn-large">Отправить обращение</button>
+                    <a href="{% url 'my_feedback' %}" class="btn btn-outline">Мои обращения</a>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
 <style>
-.feedback-container {
+.feedback-form-container {
     max-width: 800px;
-    margin: 2rem auto;
-    padding: 2rem;
+    margin: 0 auto;
 }
 
 .feedback-form {
-    background: white;
+    background: var(--bg-card);
     padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+}
+
+.form-section {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background: var(--bg);
+    border-radius: var(--radius);
+}
+
+.form-section h3 {
+    margin: 0 0 1rem 0;
+    color: var(--text);
+    font-size: 1.1rem;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.form-row.triple {
+    grid-template-columns: 1fr 1fr 1fr;
 }
 
 .form-group {
@@ -90,57 +125,70 @@
 .form-group label {
     display: block;
     margin-bottom: 0.5rem;
-    font-weight: bold;
-    color: #005073;
-}
-
-.form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 1rem;
+    font-weight: 600;
+    color: var(--text);
+    font-size: 0.9rem;
 }
 
 .form-control {
     width: 100%;
-    padding: 0.75rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
     font-size: 1rem;
-    box-sizing: border-box;
+    transition: var(--transition);
+    background: var(--bg-card);
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(0, 80, 115, 0.1);
+}
+
+select.form-control {
+    background: var(--bg-card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23005073' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E") no-repeat right 1rem center;
+    background-size: 12px;
+    appearance: none;
+    padding-right: 2.5rem;
 }
 
 textarea.form-control {
     min-height: 150px;
     resize: vertical;
-}
-
-select.form-control {
-    background: white;
-}
-
-.btn-primary {
-    background: #005073;
-    color: white;
-    padding: 0.75rem 2rem;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: background 0.3s ease;
-}
-
-.btn-primary:hover {
-    background: #0078a8;
+    line-height: 1.5;
 }
 
 .field-errors {
     color: #c62828;
-    font-size: 0.9em;
-    margin-top: 0.25rem;
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
 }
 
 .error {
     display: block;
+    margin-bottom: 0.25rem;
+}
+
+.help-text {
+    font-size: 0.8rem;
+    color: var(--text-light);
+    margin-top: 0.5rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-start;
+    align-items: center;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+}
+
+.btn-large {
+    padding: 0.75rem 2rem;
+    font-size: 1rem;
 }
 
 @media (max-width: 768px) {
@@ -148,12 +196,21 @@ select.form-control {
         grid-template-columns: 1fr;
     }
 
-    .feedback-container {
-        padding: 1rem;
+    .form-row.triple {
+        grid-template-columns: 1fr;
+    }
+
+    .form-actions {
+        flex-direction: column;
+        align-items: stretch;
     }
 
     .feedback-form {
         padding: 1.5rem;
+    }
+
+    .content-body {
+        padding: 1rem;
     }
 }
 </style>
@@ -164,55 +221,51 @@ document.addEventListener('DOMContentLoaded', function() {
     const chapterSelect = document.getElementById('id_chapter');
     const sectionSelect = document.getElementById('id_section');
 
-    // Обработчик изменения модуля
-    if (moduleSelect) {
-        moduleSelect.addEventListener('change', function() {
-            const moduleId = this.value;
+    function updateChapters() {
+        const moduleId = moduleSelect.value;
+        chapterSelect.innerHTML = '<option value="">---------</option>';
+        sectionSelect.innerHTML = '<option value="">---------</option>';
 
-            // Очищаем главы и разделы
-            chapterSelect.innerHTML = '<option value="">---------</option>';
-            sectionSelect.innerHTML = '<option value="">---------</option>';
-
-            if (moduleId) {
-                // Загружаем главы для выбранного модуля
-                fetch(`/api/chapters/?module=${moduleId}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        data.chapters.forEach(chapter => {
-                            const option = document.createElement('option');
-                            option.value = chapter.id;
-                            option.textContent = `Глава ${chapter.number}. ${chapter.title}`;
-                            chapterSelect.appendChild(option);
-                        });
-                    })
-                    .catch(error => console.error('Error:', error));
-            }
-        });
+        if (moduleId) {
+            fetch(`/api/chapters/?module=${moduleId}`)
+                .then(response => response.json())
+                .then(data => {
+                    data.chapters.forEach(chapter => {
+                        const option = document.createElement('option');
+                        option.value = chapter.id;
+                        option.textContent = `Глава ${chapter.number}. ${chapter.title}`;
+                        chapterSelect.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error:', error));
+        }
     }
 
-    // Обработчик изменения главы
+    function updateSections() {
+        const chapterId = chapterSelect.value;
+        sectionSelect.innerHTML = '<option value="">---------</option>';
+
+        if (chapterId) {
+            fetch(`/api/sections/?chapter=${chapterId}`)
+                .then(response => response.json())
+                .then(data => {
+                    data.sections.forEach(section => {
+                        const option = document.createElement('option');
+                        option.value = section.id;
+                        option.textContent = `${section.code} ${section.title}`;
+                        sectionSelect.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    }
+
+    if (moduleSelect) {
+        moduleSelect.addEventListener('change', updateChapters);
+    }
+
     if (chapterSelect) {
-        chapterSelect.addEventListener('change', function() {
-            const chapterId = this.value;
-
-            // Очищаем разделы
-            sectionSelect.innerHTML = '<option value="">---------</option>';
-
-            if (chapterId) {
-                // Загружаем разделы для выбранной главы
-                fetch(`/api/sections/?chapter=${chapterId}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        data.sections.forEach(section => {
-                            const option = document.createElement('option');
-                            option.value = section.id;
-                            option.textContent = `${section.code} ${section.title}`;
-                            sectionSelect.appendChild(option);
-                        });
-                    })
-                    .catch(error => console.error('Error:', error));
-            }
-        });
+        chapterSelect.addEventListener('change', updateSections);
     }
 });
 </script>

@@ -4,67 +4,127 @@
     <meta charset="utf-8">
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             line-height: 1.6;
-            color: #333;
+            color: #2c3e50;
             max-width: 600px;
             margin: 0 auto;
             padding: 20px;
+            background: #f8f9fa;
         }
-        .header {
-            background: #005073;
+        .email-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        .email-header {
+            background: linear-gradient(135deg, #005073, #003d52);
             color: white;
-            padding: 20px;
+            padding: 2rem;
             text-align: center;
-            border-radius: 8px 8px 0 0;
         }
-        .content {
-            background: #f9f9f9;
-            padding: 20px;
-            border-radius: 0 0 8px 8px;
+        .email-content {
+            padding: 2rem;
         }
         .button {
             display: inline-block;
             background: #005073;
             color: white;
-            padding: 12px 24px;
+            padding: 14px 28px;
             text-decoration: none;
-            border-radius: 4px;
+            border-radius: 6px;
             margin: 20px 0;
+            font-weight: 600;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
         }
-        .footer {
+        .button:hover {
+            background: #0078a8;
+            transform: translateY(-2px);
+        }
+        .email-footer {
             text-align: center;
-            margin-top: 20px;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e1e5e9;
             font-size: 0.9em;
-            color: #666;
+            color: #7f8c8d;
+        }
+        .steps {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+        .step-number {
+            background: #005073;
+            color: white;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            flex-shrink: 0;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Cisco Networking Academy</h1>
-        <p>Подтверждение email адреса</p>
-    </div>
-
-    <div class="content">
-        <h2>Здравствуйте, {{ user.username }}!</h2>
-
-        <p>Благодарим вас за регистрацию в Cisco Networking Academy. Для завершения регистрации необходимо подтвердить ваш email адрес.</p>
-
-        <p>Пожалуйста, нажмите на кнопку ниже для подтверждения:</p>
-
-        <div style="text-align: center;">
-            <a href="{{ verification_url }}" class="button">Подтвердить Email</a>
+    <div class="email-container">
+        <div class="email-header">
+            <h1>Cisco Networking Academy</h1>
+            <p>Подтверждение email адреса</p>
         </div>
 
-        <p>Если кнопка не работает, скопируйте и вставьте следующую ссылку в браузер:</p>
-        <p style="word-break: break-all; font-size: 0.9em; color: #666;">{{ verification_url }}</p>
+        <div class="email-content">
+            <h2>Здравствуйте, {{ user.username }}!</h2>
 
-        <p>Если вы не регистрировались в нашей системе, пожалуйста, проигнорируйте это письмо.</p>
-    </div>
+            <p>Благодарим вас за регистрацию в Cisco Networking Academy. Для завершения регистрации необходимо подтвердить ваш email адрес.</p>
 
-    <div class="footer">
-        <p>С уважением,<br>Команда Cisco Networking Academy</p>
+            <div style="text-align: center;">
+                <a href="{{ verification_url }}" class="button">Подтвердить Email</a>
+            </div>
+
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div>Нажмите на кнопку "Подтвердить Email" выше</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div>Будет выполнен переход на страницу подтверждения</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div>Ваш аккаунт будет активирован автоматически</div>
+                </div>
+            </div>
+
+            <p style="font-size: 0.9em; color: #7f8c8d;">
+                Если кнопка не работает, скопируйте и вставьте следующую ссылку в браузер:
+            </p>
+            <p style="word-break: break-all; font-size: 0.9em; color: #666; background: #f8f9fa; padding: 1rem; border-radius: 4px;">
+                {{ verification_url }}
+            </p>
+
+            <p><strong>Важно:</strong> Ссылка действительна в течение 24 часов.</p>
+
+            <p>Если вы не регистрировались в нашей системе, пожалуйста, проигнорируйте это письмо.</p>
+        </div>
+
+        <div class="email-footer">
+            <p>С уважением,<br>Команда Cisco Networking Academy</p>
+        </div>
     </div>
 </body>
 </html>

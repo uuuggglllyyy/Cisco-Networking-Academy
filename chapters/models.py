@@ -175,6 +175,25 @@ class FeedbackConfig(models.Model):
         return super().save(*args, **kwargs)
 
 
+class UserProgress(models.Model):
+    """Прогресс пользователя по разделам"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='progress')
+    section = models.ForeignKey(Section, on_delete=models.CASCADE)
+    completed = models.BooleanField(default=False)
+    time_spent = models.IntegerField(default=0)  # в секундах
+    last_accessed = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ['user', 'section']
+        verbose_name = 'Прогресс пользователя'
+        verbose_name_plural = 'Прогресс пользователей'
+
+    def __str__(self):
+        status = "пройден" if self.completed else "в процессе"
+        return f"{self.user.username} - {self.section.code} ({status})"
+
+
 # СИГНАЛЫ ДЛЯ АВТОМАТИЧЕСКОГО СОЗДАНИЯ ПРОФИЛЯ
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
@@ -186,3 +205,4 @@ def create_user_profile(sender, instance, created, **kwargs):
 def save_user_profile(sender, instance, **kwargs):
     if hasattr(instance, 'profile'):
         instance.profile.save()
+

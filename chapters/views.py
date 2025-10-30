@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 import json
@@ -11,40 +12,120 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
-from .models import Module, Chapter, Section, UserProfile, Feedback
+from .models import Module, Chapter, Section, UserProfile, Feedback, UserProgress
 from .forms import RegistrationForm, FeedbackForm
 from django.http import JsonResponse
 from .feedback_utils import send_feedback_notifications, send_feedback_auto_response
 
 
-
 def module_list(request):
     modules = Module.objects.all()
-    return render(request, 'chapters/module_list.html', {'modules': modules})
+
+    # Получаем общий прогресс
+    total_progress = get_user_progress(request.user)
+
+    # Получаем прогресс по каждому модулю
+    modules_with_progress = []
+    for module in modules:
+        module_progress = get_user_progress(request.user, module=module)
+        modules_with_progress.append({
+            'module': module,
+            'progress': module_progress
+        })
+
+    return render(request, 'chapters/module_list.html', {
+        'modules_with_progress': modules_with_progress,
+        'total_progress': total_progress
+    })
 
 
 def module_detail(request, module_id):
     module = get_object_or_404(Module, id=module_id)
     chapters = module.chapters.all()
+
+    # Получаем прогресс для каждой главы
+    chapters_with_progress = []
+    for chapter in chapters:
+        chapter_progress = get_user_progress(request.user, chapter=chapter)
+        # Добавляем прогресс к объекту главы
+        chapter.progress = chapter_progress
+        chapters_with_progress.append(chapter)
+
+    module_progress = get_user_progress(request.user, module=module)
+
     return render(request, 'chapters/module_detail.html', {
         'module': module,
-        'chapters': chapters
+        'chapters': chapters_with_progress,  # Используем обновленный список
+        'module_progress': module_progress
     })
 
 
 def chapter_detail(request, module_id, chapter_id):
     chapter = get_object_or_404(Chapter, id=chapter_id, module_id=module_id)
     sections = chapter.sections.all()
+
+    chapter_progress = get_user_progress(request.user, chapter=chapter)
+
+    # Получаем статус для каждого раздела с информацией о прогрессе
+    sections_with_progress = []
+    for section in sections:
+        if request.user.is_authenticated:
+            progress = UserProgress.objects.filter(user=request.user, section=section).first()
+            if progress and progress.completed:
+                status = 'completed'
+                status_text = '✓ Пройден'
+            else:
+                status = 'not-started'
+                status_text = '● Не пройден'
+        else:
+            status = 'not-started'
+            status_text = '● Не пройден'
+
+        sections_with_progress.append({
+            'section': section,
+            'status': status,
+            'status_text': status_text,
+            'progress': progress
+        })
+
     return render(request, 'chapters/chapter_detail.html', {
         'chapter': chapter,
-        'sections': sections
+        'sections_with_progress': sections_with_progress,
+        'chapter_progress': chapter_progress
     })
 
 
 def section_detail(request, module_id, chapter_id, section_id):
     section = get_object_or_404(Section, id=section_id, chapter_id=chapter_id, chapter__module_id=module_id)
-    return render(request, 'chapters/section_detail.html', {'section': section})
 
+    # Расчет времени чтения
+    reading_time = calculate_reading_time(section.content)
+
+    # Автоматически отмечаем раздел как прочитанный при открытии (но не сразу)
+    user_progress = None
+    was_newly_marked = False
+
+    if request.user.is_authenticated:
+        user_progress, created = UserProgress.objects.get_or_create(
+            user=request.user,
+            section=section
+        )
+
+        # Если прогресс еще не отмечен, мы его отметим через JavaScript с задержкой
+        # или при закрытии страницы
+        if not user_progress.completed:
+            # Здесь мы НЕ сохраняем сразу, а оставляем для JavaScript
+            pass
+
+    # Получаем прогресс по главе
+    chapter_progress = get_user_progress(request.user, chapter=section.chapter)
+
+    return render(request, 'chapters/section_detail.html', {
+        'section': section,
+        'reading_time': reading_time,
+        'user_progress': user_progress,
+        'chapter_progress': chapter_progress
+    })
 
 @csrf_exempt
 @require_http_methods(["POST"])
@@ -106,7 +187,6 @@ def ai_assistant(request):
         })
 
 
-# УБЕДИТЕСЬ ЧТО ЭТА ФУНКЦИЯ ЕСТЬ В ФАЙЛЕ!
 def ai_chat_page(request, module_id=None, chapter_id=None, section_id=None):
     """
     Страница чата с AI ассистентом
@@ -172,7 +252,7 @@ def register_view(request):
 
 def send_verification_email(user, token):
     try:
-        verification_url = f"http://127.0.0.1:8000/verify-email/{token}/"
+        verification_url = f"http://ktpt.fun:50005/verify-email/{token}/"
 
         subject = 'Подтверждение email - Cisco Networking Academy'
         html_message = render_to_string('chapters/emails/verification_email.html', {
@@ -184,14 +264,6 @@ def send_verification_email(user, token):
         # В режиме разработки просто выводим ссылку в консоль
         if settings.DEBUG:
             print(f"Ссылка для подтверждения: {verification_url}")
-            # Если нужно реально отправлять email, раскомментируйте ниже
-            # send_mail(
-            #     subject,
-            #     plain_message,
-            #     settings.DEFAULT_FROM_EMAIL,
-            #     [user.email],
-            #     html_message=html_message,
-            # )
         else:
             send_mail(
                 subject,
@@ -249,6 +321,64 @@ def logout_view(request):
     return redirect('/')
 
 
+# API для получения глав по модулю
+def get_chapters_by_module(request):
+    module_id = request.GET.get('module')
+    if module_id:
+        chapters = Chapter.objects.filter(module_id=module_id).values('id', 'number', 'title')
+        return JsonResponse({'chapters': list(chapters)})
+    return JsonResponse({'chapters': []})
+
+
+# API для получения разделов по главе
+def get_sections_by_chapter(request):
+    chapter_id = request.GET.get('chapter')
+    if chapter_id:
+        sections = Section.objects.filter(chapter_id=chapter_id).values('id', 'code', 'title')
+        return JsonResponse({'sections': list(sections)})
+    return JsonResponse({'sections': []})
+
+
+def calculate_reading_time(text):
+    """Рассчитывает время чтения в минутах"""
+    # Средняя скорость чтения: 200-250 слов в минуту
+    words = len(text.split())
+    reading_time = max(1, round(words / 200))  # минимум 1 минута
+    return reading_time
+
+
+def get_user_progress(user, chapter=None, module=None):
+    """Получает прогресс пользователя"""
+    if not user.is_authenticated:
+        return {
+            'completed_sections': 0,
+            'total_sections': 0,
+            'progress_percentage': 0
+        }
+
+    if chapter:
+        sections = Section.objects.filter(chapter=chapter)
+    elif module:
+        sections = Section.objects.filter(chapter__module=module)
+    else:
+        sections = Section.objects.all()
+
+    total_sections = sections.count()
+    completed_sections = UserProgress.objects.filter(
+        user=user,
+        section__in=sections,
+        completed=True
+    ).count()
+
+    progress_percentage = round((completed_sections / total_sections) * 100) if total_sections > 0 else 0
+
+    return {
+        'completed_sections': completed_sections,
+        'total_sections': total_sections,
+        'progress_percentage': progress_percentage
+    }
+
+
 # ФУНКЦИИ ДЛЯ ОБРАТНОЙ СВЯЗИ
 @login_required
 def feedback_view(request):
@@ -297,18 +427,76 @@ def user_profile_api(request):
         'email_verified': profile.email_verified,
     })
 
-# API для получения глав по модулю
-def get_chapters_by_module(request):
-    module_id = request.GET.get('module')
-    if module_id:
-        chapters = Chapter.objects.filter(module_id=module_id).values('id', 'number', 'title')
-        return JsonResponse({'chapters': list(chapters)})
-    return JsonResponse({'chapters': []})
 
-# API для получения разделов по главе
-def get_sections_by_chapter(request):
-    chapter_id = request.GET.get('chapter')
-    if chapter_id:
-        sections = Section.objects.filter(chapter_id=chapter_id).values('id', 'code', 'title')
-        return JsonResponse({'sections': list(sections)})
-    return JsonResponse({'sections': []})
+@login_required
+@require_http_methods(["POST"])
+def mark_section_completed(request, section_id):
+    """Отмечает раздел как пройденный"""
+    section = get_object_or_404(Section, id=section_id)
+
+    progress, created = UserProgress.objects.get_or_create(
+        user=request.user,
+        section=section
+    )
+    progress.completed = True
+    progress.save()
+
+    return JsonResponse({'status': 'success'})
+
+
+@login_required
+def progress_management(request):
+    """Страница управления прогрессом"""
+    total_progress = get_user_progress(request.user)
+    return render(request, 'chapters/progress_management.html', {
+        'total_progress': total_progress
+    })
+
+
+@login_required
+@require_http_methods(["POST"])
+def reset_progress(request):
+    """Сброс всего прогресса пользователя"""
+    try:
+        # Удаляем все записи прогресса пользователя
+        deleted_count, _ = UserProgress.objects.filter(user=request.user).delete()
+
+        return JsonResponse({
+            'status': 'success',
+            'message': f'Удалено {deleted_count} записей прогресса',
+            'deleted_count': deleted_count
+        })
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=500)
+
+
+@login_required
+def export_progress(request):
+    """Экспорт прогресса пользователя"""
+    progress_data = UserProgress.objects.filter(user=request.user).select_related('section', 'section__chapter',
+                                                                                  'section__chapter__module')
+
+    export_data = {
+        'user': request.user.username,
+        'export_date': timezone.now().isoformat(),
+        'progress': []
+    }
+
+    for progress in progress_data:
+        export_data['progress'].append({
+            'module': progress.section.chapter.module.title,
+            'module_number': progress.section.chapter.module.number,
+            'chapter': progress.section.chapter.title,
+            'chapter_number': progress.section.chapter.number,
+            'section': progress.section.title,
+            'section_code': progress.section.code,
+            'completed': progress.completed,
+            'time_spent': progress.time_spent,
+            'last_accessed': progress.last_accessed.isoformat(),
+            'created_at': progress.created_at.isoformat()
+        })
+
+    return JsonResponse(export_data)

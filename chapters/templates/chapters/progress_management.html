@@ -1,0 +1,158 @@
+{% extends 'chapters/base.html' %}
+
+{% block title %}Управление прогрессом - Cisco Networking Academy{% endblock %}
+
+{% block content %}
+<div class="content-section">
+    <div class="content-header">
+        <h1>Управление прогрессом</h1>
+        <p>Здесь вы можете управлять своим прогрессом обучения</p>
+    </div>
+
+    <div class="content-body">
+        <!-- Текущий прогресс -->
+        <div class="progress-card" style="background: var(--bg); padding: 1.5rem; border-radius: var(--radius); margin-bottom: 2rem; border: 1px solid var(--border);">
+            <h3 style="margin: 0 0 1rem 0;">Текущий прогресс</h3>
+            <div class="progress-info" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <span style="font-size: 0.9rem;">Пройдено разделов</span>
+                <span style="font-weight: 600; color: var(--primary);">{{ total_progress.completed_sections }}/{{ total_progress.total_sections }}</span>
+            </div>
+            <div class="progress-bar" style="width: 100%; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; margin-bottom: 1rem;">
+                <div class="progress-fill" style="height: 100%; background: var(--accent); border-radius: 4px; width: {{ total_progress.progress_percentage }}%"></div>
+            </div>
+            <div style="text-align: center;">
+                <span class="status-badge {% if total_progress.progress_percentage == 100 %}status-completed{% elif total_progress.progress_percentage > 0 %}status-in-progress{% else %}status-not-started{% endif %}" style="font-size: 0.9rem;">
+                    {% if total_progress.progress_percentage == 100 %}✓ Курс завершен
+                    {% elif total_progress.progress_percentage > 0 %}⏳ В процессе
+                    {% else %}● Не начат{% endif %}
+                </span>
+            </div>
+        </div>
+
+        <!-- Управление прогрессом -->
+        <div class="management-section" style="background: var(--bg); padding: 2rem; border-radius: var(--radius); border: 1px solid var(--border);">
+            <h3 style="margin: 0 0 1.5rem 0; color: var(--text);">Управление прогрессом</h3>
+
+            <div class="warning-message" style="background: #fff3e0; border: 1px solid #ffb74d; border-radius: var(--radius); padding: 1rem; margin-bottom: 2rem;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef6c00;">⚠️ Внимание</h4>
+                <p style="margin: 0; color: var(--text); font-size: 0.9rem;">
+                    Сброс прогресса удалит все данные о пройденных разделах. Это действие нельзя отменить.
+                </p>
+            </div>
+
+            <div class="management-actions" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <button id="reset-progress" class="btn btn-danger" style="background: #f44336; border-color: #f44336;">
+                    🗑️ Сбросить весь прогресс
+                </button>
+                <button id="export-progress" class="btn btn-outline">
+                    📊 Экспорт прогресса
+                </button>
+            </div>
+
+            <div id="reset-confirm" style="display: none; margin-top: 1.5rem; padding: 1rem; background: #ffebee; border: 1px solid #f44336; border-radius: var(--radius);">
+                <h4 style="margin: 0 0 1rem 0; color: #c62828;">Подтверждение сброса</h4>
+                <p style="margin: 0 0 1rem 0; color: var(--text); font-size: 0.9rem;">
+                    Вы уверены, что хотите сбросить весь прогресс? Это действие удалит все данные о пройденных разделах.
+                </p>
+                <div style="display: flex; gap: 1rem;">
+                    <button id="confirm-reset" class="btn btn-danger" style="background: #f44336; border-color: #f44336;">
+                        Да, сбросить прогресс
+                    </button>
+                    <button id="cancel-reset" class="btn btn-outline">
+                        Отмена
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.btn-danger {
+    background: #f44336;
+    border-color: #f44336;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #d32f2f;
+    border-color: #d32f2f;
+}
+
+.management-actions .btn {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const resetButton = document.getElementById('reset-progress');
+    const confirmSection = document.getElementById('reset-confirm');
+    const confirmButton = document.getElementById('confirm-reset');
+    const cancelButton = document.getElementById('cancel-reset');
+    const exportButton = document.getElementById('export-progress');
+
+    if (resetButton) {
+        resetButton.addEventListener('click', function() {
+            confirmSection.style.display = 'block';
+        });
+    }
+
+    if (cancelButton) {
+        cancelButton.addEventListener('click', function() {
+            confirmSection.style.display = 'none';
+        });
+    }
+
+    if (confirmButton) {
+        confirmButton.addEventListener('click', function() {
+            // Отправляем запрос на сброс прогресса
+            fetch('/api/progress/reset/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('Прогресс успешно сброшен!');
+                    window.location.reload();
+                } else {
+                    alert('Произошла ошибка при сбросе прогресса');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Произошла ошибка при сбросе прогресса');
+            });
+        });
+    }
+
+    if (exportButton) {
+        exportButton.addEventListener('click', function() {
+            // Экспорт прогресса в JSON
+            fetch('/api/progress/export/')
+            .then(response => response.json())
+            .then(data => {
+                const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'cisco-progress-export.json';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Произошла ошибка при экспорте прогресса');
+            });
+        });
+    }
+});
+</script>
+{% endblock %}
