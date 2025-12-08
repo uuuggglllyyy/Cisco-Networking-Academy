@@ -74,7 +74,8 @@ class UserProfileInline(admin.StackedInline):
     model = UserProfile
     can_delete = False
     verbose_name_plural = 'Профиль'
-
+    fields = ('role', 'email_verified', 'phone', 'created_at')
+    readonly_fields = ('created_at',)
 
 class CustomUserAdmin(UserAdmin):
     inlines = (UserProfileInline,)
