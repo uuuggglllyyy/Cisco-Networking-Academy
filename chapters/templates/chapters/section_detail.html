@@ -1,0 +1,716 @@
+{% extends 'chapters/base.html' %}
+{% load video_extras %}
+
+{% block title %}{{ section.title }} - Cisco Networking Academy{% endblock %}
+
+{% block content %}
+<nav class="breadcrumb animate-in">
+    <a href="{% url 'module_list' %}">Модули</a>
+    <span class="breadcrumb-separator">/</span>
+    <a href="{% url 'module_detail' section.chapter.module.id %}">Модуль {{ section.chapter.module.number }}</a>
+    <span class="breadcrumb-separator">/</span>
+    <a href="{% url 'chapter_detail' section.chapter.module.id section.chapter.id %}">Глава {{ section.chapter.number }}</a>
+    <span class="breadcrumb-separator">/</span>
+    <span>{{ section.code }}</span>
+</nav>
+
+<div class="content-section animate-in">
+    <div class="content-header">
+        <div class="header-main">
+            <div class="header-content">
+                <h1>{{ section.code }} {{ section.title }}</h1>
+
+                <div class="header-meta-centered">
+                    <div class="meta-badge reading-time">
+                        <span class="cisco-icon icon-time"></span>
+                        Чтение: {{ reading_time }} мин
+                    </div>
+
+                    {% if section.has_video %}
+                    <div class="meta-badge video-available">
+                        <span class="cisco-icon">play_circle</span>
+                        Есть видео
+                    </div>
+                    {% endif %}
+
+                    {% if user.is_authenticated or test_mode %}
+                        {% if user_progress and user_progress.completed %}
+                        <div class="completion-badge completed">
+                            <span class="cisco-icon icon-completed"></span>
+                            Раздел пройден
+                        </div>
+                        {% else %}
+                        <div class="completion-controls">
+                            <button id="mark-completed" class="btn btn-success">
+                                <span class="cisco-icon icon-completed"></span>
+                                Отметить пройденным
+                            </button>
+                            <div id="auto-progress" class="auto-progress">
+                                <div class="progress-text">
+                                    <span class="cisco-icon" style="font-size: 0.9em; margin-right: 0.5rem;">schedule</span>
+                                    Автосохранение через: <span id="countdown">10</span> сек
+                                </div>
+                                <div class="progress-bar small">
+                                    <div class="progress-fill" id="auto-progress-fill"></div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endif %}
+
+                    {% if section.external_link %}
+                    <a href="{{ section.external_link }}" target="_blank" class="btn btn-accent">
+                        <span class="cisco-icon icon-external"></span>
+                        Открыть ресурс
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-body">
+        <!-- ВИДЕО ПЛЕЕР -->
+        {% if section.has_video %}
+        <div class="video-section">
+            <div class="video-header">
+                <h2>
+                    <span class="cisco-icon" style="margin-right: 0.75rem;">play_circle</span>
+                    Видео материал
+                </h2>
+            </div>
+
+            <div class="video-player-wrapper">
+                {% if section.video_file %}
+                <!-- ВСТРОЕННЫЙ ВИДЕО ПЛЕЕР -->
+                <video
+                    class="cisco-video-player"
+                    controls
+                    controlsList="nodownload" <!-- УБИРАЕМ КНОПКУ СКАЧИВАНИЯ -->
+                    preload="metadata"
+                >
+                    <source src="{{ section.video_file.url }}" type="video/mp4">
+                    <source src="{{ section.video_file.url }}" type="video/webm">
+                    <source src="{{ section.video_file.url }}" type="video/ogg">
+                    Ваш браузер не поддерживает видео тег.
+                </video>
+                {% elif section.video_url %}
+                <!-- IFrame ДЛЯ ВНЕШНИХ ВИДЕО -->
+                <div class="video-embed">
+                    {% if 'youtube.com' in section.video_url or 'youtu.be' in section.video_url %}
+                    <iframe
+                        src="https://www.youtube.com/embed/{{ section.video_url|youtube_id }}"
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen>
+                    </iframe>
+                    {% elif 'vimeo.com' in section.video_url %}
+                    <iframe
+                        src="https://player.vimeo.com/video/{{ section.video_url|vimeo_id }}"
+                        frameborder="0"
+                        allow="autoplay; fullscreen; picture-in-picture"
+                        allowfullscreen>
+                    </iframe>
+                    {% else %}
+                    <a href="{{ section.video_url }}" target="_blank" class="btn btn-primary">
+                        <span class="cisco-icon">play_circle</span>
+                        Открыть видео
+                    </a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- ОСТАЛЬНЫЙ КОНТЕНТ БЕЗ ИЗМЕНЕНИЙ -->
+        {% if section.image %}
+        <div class="section-image">
+            <img src="{{ section.image.url }}" alt="{{ section.title }}" />
+            <p class="image-caption">Иллюстрация к разделу</p>
+        </div>
+        {% endif %}
+
+        <article class="section-content">
+            {{ section.content|linebreaks }}
+        </article>
+
+        {% if section.attached_file %}
+        <div class="resources-section">
+            <h3 class="resources-title">
+                <span class="cisco-icon icon-resources"></span>
+                Материалы для скачивания
+            </h3>
+            <div class="resource-card">
+                <div class="resource-icon">
+                    <span class="cisco-icon" style="font-size: 2.5rem;">
+                        {% if section.attached_file.url|lower|slice:'-4:' == '.pdf' %}picture_as_pdf
+                        {% elif section.attached_file.url|lower|slice:'-4:' == '.doc' or section.attached_file.url|lower|slice:'-5:' == '.docx' %}description
+                        {% elif section.attached_file.url|lower|slice:'-4:' == '.zip' %}folder_zip
+                        {% else %}attach_file{% endif %}
+                    </span>
+                </div>
+                <div class="resource-info">
+                    <h4>Инструкция к заданию</h4>
+                    <p>Файл с подробными инструкциями по выполнению работы</p>
+                    <div class="resource-meta">
+                        <span class="file-type">
+                            <span class="cisco-icon" style="font-size: 0.9em; margin-right: 0.25rem;">description</span>
+                            {% if section.attached_file.url|lower|slice:'-4:' == '.pdf' %}PDF
+                            {% elif section.attached_file.url|lower|slice:'-4:' == '.doc' %}Word
+                            {% elif section.attached_file.url|lower|slice:'-5:' == '.docx' %}Word
+                            {% elif section.attached_file.url|lower|slice:'-4:' == '.zip' %}ZIP
+                            {% else %}Файл{% endif %}
+                        </span>
+                        <span class="file-size">
+                            <span class="cisco-icon" style="font-size: 0.9em; margin-right: 0.25rem;">storage</span>
+                            ~2-3 МБ
+                        </span>
+                    </div>
+                </div>
+                <a href="{{ section.attached_file.url }}" download class="btn btn-primary">
+                    <span class="cisco-icon icon-download"></span>
+                    Скачать
+                </a>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="section-navigation">
+            <div class="navigation-group">
+                <a href="{% url 'chapter_detail' section.chapter.module.id section.chapter.id %}" class="btn btn-outline">
+                    <span class="cisco-icon icon-back"></span>
+                    Назад к главе
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* СТИЛИ ДЛЯ ВИДЕО СЕКЦИИ */
+.video-section {
+    margin: 2.5rem 0;
+    padding: 0;
+}
+
+.video-header {
+    margin-bottom: 1.5rem;
+}
+
+.video-header h2 {
+    display: flex;
+    align-items: center;
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.video-player-wrapper {
+    background: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-light);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition-normal);
+}
+
+.video-player-wrapper:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+/* СТИЛИ ВСТРОЕННОГО ВИДЕО ПЛЕЕРА */
+.cisco-video-player {
+    width: 100%;
+    height: auto;
+    max-height: 600px;
+    background: #000;
+    border-radius: var(--radius-lg);
+    display: block;
+}
+
+/* СКРЫВАЕМ КНОПКУ СКАЧИВАНИЯ В ВИДЕО ПЛЕЕРЕ */
+.cisco-video-player::-webkit-media-controls-enclosure {
+    overflow: hidden;
+}
+
+.cisco-video-player::-webkit-media-controls-panel {
+    width: calc(100% + 30px);
+}
+
+/* СТИЛИ ДЛЯ ВСТРАИВАЕМЫХ ВИДЕО */
+.video-embed {
+    position: relative;
+    width: 100%;
+    height: 0;
+    padding-bottom: 56.25%; /* 16:9 aspect ratio */
+}
+
+.video-embed iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: var(--radius-lg);
+}
+
+/* БЕЙДЖ ДЛЯ ВИДЕО */
+.meta-badge.video-available {
+    background: #e3f2fd;
+    border: 1px solid #2196f3;
+    color: #1976d2;
+    padding: 0.75rem 1.25rem;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+}
+
+/* ОСТАЛЬНЫЕ СТИЛИ БЕЗ ИЗМЕНЕНИЙ */
+.header-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 2rem;
+}
+
+.header-content {
+    flex: 1;
+    text-align: center;
+}
+
+.header-meta-centered {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.reading-time {
+    background: #e3f2fd;
+    border: 1px solid #2196f3;
+    color: #1976d2;
+    padding: 0.75rem 1.25rem;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+}
+
+.completion-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1.25rem;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 0.95rem;
+    border: 2px solid;
+    white-space: nowrap;
+}
+
+.completion-badge.completed {
+    background: #e8f5e8;
+    color: #2e7d32;
+    border-color: #4caf50;
+}
+
+.completion-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+}
+
+.auto-progress {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-light);
+    min-width: 200px;
+}
+
+.progress-text {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    text-align: center;
+}
+
+.section-image {
+    text-align: center;
+    margin: 2.5rem 0;
+    padding: 1.5rem;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-light);
+}
+
+.section-image img {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.image-caption {
+    margin-top: 1rem;
+    font-style: italic;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.section-content {
+    line-height: 1.7;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+}
+
+.section-content p {
+    margin-bottom: 1.5rem;
+}
+
+.resources-section {
+    margin: 3rem 0;
+    padding: 2.5rem;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-light);
+}
+
+.resources-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    justify-content: center;
+}
+
+.resource-card {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    background: var(--bg-primary);
+    padding: 2rem;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-light);
+    transition: var(--transition-normal);
+}
+
+.resource-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.resource-icon {
+    flex-shrink: 0;
+}
+
+.resource-info {
+    flex: 1;
+}
+
+.resource-info h4 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.resource-info p {
+    margin: 0 0 1rem 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.resource-meta {
+    display: flex;
+    gap: 1.5rem;
+    font-size: 0.8rem;
+    color: var(--text-tertiary);
+}
+
+.file-type, .file-size {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.section-navigation {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-light);
+}
+
+/* АДАПТИВНОСТЬ */
+@media (max-width: 1024px) {
+    .header-main {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .header-meta-centered {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .header-meta-centered {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .video-section {
+        margin: 2rem 0;
+    }
+
+    .video-header h2 {
+        font-size: 1.2rem;
+    }
+
+    .cisco-video-player {
+        max-height: 300px;
+    }
+
+    .completion-badge {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .section-navigation {
+        flex-direction: column;
+        gap: 1.5rem;
+        text-align: center;
+    }
+
+    .navigation-group {
+        width: 100%;
+        text-align: center;
+    }
+
+    .resource-card {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+
+    .resources-section {
+        padding: 1.5rem;
+    }
+
+    .section-image {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-content h1 {
+        font-size: 1.5rem;
+    }
+
+    .video-header {
+        text-align: center;
+    }
+
+    .video-header h2 {
+        justify-content: center;
+    }
+
+    .completion-controls .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .header-meta-centered {
+        gap: 0.75rem;
+    }
+
+    .reading-time,
+    .completion-badge {
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const markButton = document.getElementById('mark-completed');
+    const countdownElement = document.getElementById('countdown');
+    const autoProgressFill = document.getElementById('auto-progress-fill');
+
+    if (markButton && !markButton.classList.contains('completed')) {
+        let countdown = 10;
+        let countdownInterval;
+        let progressMarked = false;
+
+        function markAsCompleted() {
+            if (progressMarked) return;
+
+            return fetch(`/api/section/{{ section.id }}/complete/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    progressMarked = true;
+                    return true;
+                }
+                return false;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                return false;
+            });
+        }
+
+        function updateUIAfterCompletion() {
+            if (markButton) {
+                markButton.innerHTML = '<span class="cisco-icon icon-completed"></span>Пройден';
+                markButton.classList.add('completed');
+                markButton.disabled = true;
+            }
+
+            if (countdownElement) {
+                countdownElement.textContent = '0';
+            }
+
+            if (autoProgressFill) {
+                autoProgressFill.style.width = '100%';
+            }
+
+            const autoProgress = document.getElementById('auto-progress');
+            if (autoProgress) {
+                autoProgress.innerHTML = `
+                    <div style="text-align: center; color: #2e7d32; font-weight: 600;">
+                        <span class="cisco-icon icon-success" style="font-size: 1.5rem; margin-bottom: 0.5rem;"></span>
+                        <div>Раздел отмечен как пройденный</div>
+                    </div>
+                `;
+            }
+        }
+
+        markButton.addEventListener('click', function() {
+            clearInterval(countdownInterval);
+            markAsCompleted().then(success => {
+                if (success) {
+                    updateUIAfterCompletion();
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                }
+            });
+        });
+
+        countdownInterval = setInterval(function() {
+            countdown--;
+
+            if (countdownElement) {
+                countdownElement.textContent = countdown;
+            }
+
+            if (autoProgressFill) {
+                const progressPercent = 100 - (countdown * 10);
+                autoProgressFill.style.width = progressPercent + '%';
+            }
+
+            if (countdown <= 0) {
+                clearInterval(countdownInterval);
+                markAsCompleted().then(success => {
+                    if (success) {
+                        updateUIAfterCompletion();
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    }
+                });
+            }
+        }, 1000);
+
+        window.addEventListener('beforeunload', function() {
+            if (!progressMarked) {
+                const data = new Blob([JSON.stringify({
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                })], {type: 'application/json'});
+                navigator.sendBeacon(`/api/section/{{ section.id }}/complete/`, data);
+            }
+        });
+
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden && !progressMarked) {
+                markAsCompleted().then(success => {
+                    if (success) progressMarked = true;
+                });
+            }
+        });
+    }
+
+    // Анимация появления элементов
+    const animatedElements = document.querySelectorAll('.animate-in');
+    animatedElements.forEach((element, index) => {
+        element.style.animationDelay = `${index * 0.1}s`;
+    });
+
+    // Улучшенное управление видео
+    const videoPlayers = document.querySelectorAll('.cisco-video-player');
+
+    videoPlayers.forEach(video => {
+        // Пауза при скрытии страницы
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                video.pause();
+            }
+        });
+
+        // Обеспечиваем корректную работу перемотки
+        video.addEventListener('loadedmetadata', function() {
+            console.log('Видео загружено, перемотка доступна');
+        });
+
+        video.addEventListener('canplay', function() {
+            console.log('Видео готово к воспроизведению');
+        });
+    });
+
+    // Дополнительные меры для скрытия кнопки скачивания
+    const style = document.createElement('style');
+    style.textContent = `
+        video::-webkit-media-controls {
+            width: calc(100% + 30px);
+        }
+        video::-internal-media-controls-download-button {
+            display: none;
+        }
+        video::-webkit-media-controls-enclosure {
+            overflow: hidden;
+        }
+        video::-webkit-media-controls-panel {
+            width: calc(100% + 30px);
+        }
+    `;
+    document.head.appendChild(style);
+});
+</script>
+{% endblock %}

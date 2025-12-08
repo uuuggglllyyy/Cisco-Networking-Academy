@@ -1,0 +1,7 @@
+django
+Pillow
+requests
+django-rest_framework
+django-cors-headers
+whitenoise
+gunicorn

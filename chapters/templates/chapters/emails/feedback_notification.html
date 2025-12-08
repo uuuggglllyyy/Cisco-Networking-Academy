@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+            color: #2c3e50;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        .email-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        .email-header {
+            background: linear-gradient(135deg, #005073, #003d52);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        .email-content {
+            padding: 2rem;
+        }
+        .feedback-info {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 6px;
+            margin: 1.5rem 0;
+            border-left: 4px solid #005073;
+        }
+        .admin-actions {
+            background: #e8f5e8;
+            padding: 1.5rem;
+            border-radius: 6px;
+            margin: 1.5rem 0;
+            border-left: 3px solid #4caf50;
+        }
+        .btn {
+            display: inline-block;
+            background: #005073;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 5px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            background: #0078a8;
+            transform: translateY(-1px);
+        }
+        .email-footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e1e5e9;
+            font-size: 0.9em;
+            color: #7f8c8d;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 0.35rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .status-new { background: #e3f2fd; color: #1976d2; }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="email-header">
+            <h1>Cisco Networking Academy</h1>
+            <p>Новое обращение в поддержку</p>
+        </div>
+
+        <div class="email-content">
+            <h2>Получена новая обратная связь</h2>
+
+            <div class="feedback-info">
+                <p><strong>От:</strong> {{ feedback.user.username }} ({{ feedback.user.email }})</p>
+                <p><strong>Тип:</strong> {{ feedback.get_feedback_type_display }}</p>
+                <p><strong>Тема:</strong> {{ feedback.subject }}</p>
+                <p><strong>Статус:</strong> <span class="status-badge status-new">{{ feedback.get_status_display }}</span></p>
+                <p><strong>Дата:</strong> {{ feedback.created_at|date:"d.m.Y H:i" }}</p>
+            </div>
+
+            <h3>Сообщение:</h3>
+            <div style="background: white; padding: 1.5rem; border-radius: 6px; border: 1px solid #e1e5e9;">
+                {{ feedback.message|linebreaks }}
+            </div>
+
+            {% if feedback.module or feedback.chapter or feedback.section %}
+            <h3>Контекст курса:</h3>
+            <div style="background: white; padding: 1rem; border-radius: 6px; border: 1px solid #e1e5e9;">
+                {% if feedback.module %}<strong>Модуль:</strong> {{ feedback.module.title }}<br>{% endif %}
+                {% if feedback.chapter %}<strong>Глава:</strong> {{ feedback.chapter.title }}<br>{% endif %}
+                {% if feedback.section %}<strong>Раздел:</strong> {{ feedback.section.title }}{% endif %}
+            </div>
+            {% endif %}
+
+            <div class="admin-actions">
+                <h3 style="margin-top: 0; color: #2e7d32;">Действия:</h3>
+                <a href="http://ktpt.fun/admin/chapters/feedback/{{ feedback.id }}/change/" class="btn">
+                    📋 Ответить на обращение
+                </a>
+                <a href="http://ktpt.fun/admin/chapters/feedback/" class="btn">
+                    📊 Все обращения
+                </a>
+            </div>
+
+            <p style="font-size: 0.9em; color: #7f8c8d;">
+                Это уведомление отправлено {{ recipient_count }} получателям
+            </p>
+        </div>
+
+        <div class="email-footer">
+            <p>С уважением,<br>Система уведомлений Cisco Networking Academy</p>
+            <p><small>Email для ответов: {{ config.feedback_email }}</small></p>
+        </div>
+    </div>
+</body>
+</html>

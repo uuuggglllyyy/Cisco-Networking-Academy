@@ -1,0 +1,316 @@
+{% extends 'chapters/base.html' %}
+
+{% block title %}Регистрация - Cisco Networking Academy{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card animate-in">
+        <div class="auth-header">
+            <div class="auth-logo">
+                <div class="logo-icon">
+                    <span class="cisco-icon">person_add</span>
+                </div>
+            </div>
+            <h2>Регистрация</h2>
+            <p>Создайте аккаунт для начала обучения</p>
+        </div>
+
+        <form method="post" class="auth-form">
+            {% csrf_token %}
+
+            {% for field in form %}
+            <div class="form-group animate-in delay-{{ forloop.counter }}">
+                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                <div class="input-container">
+                    {% if field.name == 'username' %}
+                        <span class="input-icon cisco-icon">person</span>
+                    {% elif field.name == 'email' %}
+                        <span class="input-icon cisco-icon">email</span>
+                    {% elif 'password' in field.name %}
+                        <span class="input-icon cisco-icon">lock</span>
+                    {% else %}
+                        <span class="input-icon cisco-icon">edit</span>
+                    {% endif %}
+                    {{ field }}
+                </div>
+                {% if field.errors %}
+                <div class="form-errors">
+                    {% for error in field.errors %}
+                    <span class="error-message">{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% if field.help_text %}
+                <div class="form-hint">{{ field.help_text }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <button type="submit" class="btn btn-primary btn-full animate-in delay-4">
+                <span class="cisco-icon">person_add</span>
+                Зарегистрироваться
+            </button>
+        </form>
+
+        <div class="auth-footer animate-in delay-5">
+            <p>Уже есть аккаунт? <a href="{% url 'login' %}" class="auth-link">Войти</a></p>
+        </div>
+    </div>
+</div>
+
+<style>
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+    padding: 2rem;
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+}
+
+.auth-card {
+    background: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    padding: 3rem;
+    width: 100%;
+    max-width: 450px;
+    border: 1px solid var(--border-light);
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--cisco-blue), var(--cisco-orange));
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.auth-logo {
+    margin-bottom: 1.5rem;
+}
+
+.logo-icon {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, var(--cisco-blue), var(--cisco-blue-light));
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    margin: 0 auto;
+    box-shadow: var(--shadow-md);
+}
+
+.auth-header h2 {
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+    font-size: 1.75rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.auth-header p {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.form-group {
+    margin-bottom: 1.75rem;
+    position: relative;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+}
+
+.input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-icon {
+    position: absolute;
+    left: 1rem;
+    color: var(--text-tertiary);
+    font-size: 1.1rem;
+    z-index: 2;
+}
+
+/* Исправляем стили для полей ввода Django */
+.form-group input {
+    width: 100%;
+    padding: 1rem 1rem 1rem 3rem;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    transition: var(--transition-normal);
+    background: var(--bg-primary);
+    font-family: inherit;
+    box-sizing: border-box;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--cisco-blue);
+    box-shadow: 0 0 0 4px rgba(0, 80, 115, 0.1);
+    transform: translateY(-1px);
+}
+
+.form-group input:hover {
+    border-color: var(--text-tertiary);
+}
+
+/* Специфичные стили для полей пароля */
+.form-group input[type="password"] {
+    padding-right: 3rem;
+    letter-spacing: 0.1em;
+}
+
+.form-errors {
+    margin-top: 0.75rem;
+}
+
+.error-message {
+    display: block;
+    color: #d70015;
+    font-size: 0.85rem;
+    margin-bottom: 0.25rem;
+    padding: 0.5rem 0.75rem;
+    background: rgba(215, 0, 21, 0.05);
+    border-radius: var(--radius-sm);
+    border-left: 3px solid #d70015;
+}
+
+.form-hint {
+    font-size: 0.85rem;
+    color: var(--text-tertiary);
+    margin-top: 0.75rem;
+    line-height: 1.5;
+}
+
+.btn-primary {
+    background: var(--cisco-blue);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-normal);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-primary:hover {
+    background: var(--cisco-blue-dark);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-full {
+    width: 100%;
+    margin-top: 0.5rem;
+    justify-content: center;
+}
+
+.auth-footer {
+    text-align: center;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-light);
+    color: var(--text-secondary);
+}
+
+.auth-link {
+    color: var(--cisco-blue);
+    text-decoration: none;
+    font-weight: 600;
+    transition: var(--transition-fast);
+}
+
+.auth-link:hover {
+    color: var(--cisco-blue-dark);
+}
+
+@media (max-width: 768px) {
+    .auth-container {
+        padding: 1rem;
+        min-height: 70vh;
+    }
+
+    .auth-card {
+        padding: 2.5rem 2rem;
+    }
+
+    .auth-header h2 {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .auth-card {
+        padding: 2rem 1.5rem;
+    }
+
+    .logo-icon {
+        width: 56px;
+        height: 56px;
+        font-size: 1.25rem;
+    }
+
+    .form-group input {
+        padding: 0.875rem 0.875rem 0.875rem 2.75rem;
+    }
+
+    .form-group input[type="password"] {
+        padding-right: 2.75rem;
+    }
+
+    .input-icon {
+        left: 0.875rem;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Исправляем z-index иконок, чтобы они не перекрывали поле ввода
+    const inputIcons = document.querySelectorAll('.input-icon');
+    inputIcons.forEach(icon => {
+        icon.style.zIndex = '1';
+    });
+
+    // Исправляем отступы для полей ввода
+    const inputs = document.querySelectorAll('.form-group input');
+    inputs.forEach(input => {
+        // Убеждаемся, что padding правильный
+        if (input.type === 'password') {
+            input.style.paddingLeft = '3rem';
+            input.style.paddingRight = '1rem';
+        } else {
+            input.style.paddingLeft = '3rem';
+        }
+    });
+});
+</script>
+{% endblock %}

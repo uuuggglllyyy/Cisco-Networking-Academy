@@ -1,0 +1,370 @@
+{% extends 'chapters/base.html' %}
+
+{% block title %}Ошибка подтверждения - Cisco Networking Academy{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <div class="error-card animate-in">
+        <div class="error-visual">
+            <div class="error-icon">
+                <div class="icon-circle">
+                    <span class="cisco-icon">error</span>
+                </div>
+                <div class="error-pulse"></div>
+            </div>
+        </div>
+        
+        <div class="error-content">
+            <h1 class="error-title">Ошибка подтверждения email</h1>
+            <p class="error-message">
+                Ссылка для подтверждения недействительна или устарела.
+                Это могло произойти по следующим причинам:
+            </p>
+
+            <div class="error-reasons">
+                <div class="reason animate-in delay-1">
+                    <div class="reason-icon">
+                        <span class="cisco-icon">schedule</span>
+                    </div>
+                    <div class="reason-content">
+                        <h3>Ссылка устарела</h3>
+                        <p>Ссылка действительна в течение 24 часов</p>
+                    </div>
+                </div>
+                
+                <div class="reason animate-in delay-2">
+                    <div class="reason-icon">
+                        <span class="cisco-icon">link_off</span>
+                    </div>
+                    <div class="reason-content">
+                        <h3>Ссылка уже использована</h3>
+                        <p>Эта ссылка подтверждения уже была активирована</p>
+                    </div>
+                </div>
+                
+                <div class="reason animate-in delay-3">
+                    <div class="reason-icon">
+                        <span class="cisco-icon">warning</span>
+                    </div>
+                    <div class="reason-content">
+                        <h3>Некорректная ссылка</h3>
+                        <p>Ссылка содержит ошибки или была изменена</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="error-actions animate-in delay-4">
+                <a href="{% url 'register' %}" class="btn btn-primary">
+                    <span class="cisco-icon">person_add</span>
+                    Зарегистрироваться снова
+                </a>
+                <a href="{% url 'login' %}" class="btn btn-outline">
+                    <span class="cisco-icon">login</span>
+                    Войти в систему
+                </a>
+                <a href="{% url 'module_list' %}" class="btn btn-outline">
+                    <span class="cisco-icon">home</span>
+                    На главную
+                </a>
+            </div>
+
+            <div class="error-footer">
+                <p>Если проблема повторяется, пожалуйста,
+                   <a href="{% url 'feedback' %}" class="footer-link">свяжитесь с поддержкой</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.error-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+    padding: 2rem;
+}
+
+.error-card {
+    background: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    padding: 3rem;
+    text-align: center;
+    max-width: 560px;
+    width: 100%;
+    border: 1px solid var(--border-light);
+    position: relative;
+    overflow: hidden;
+}
+
+.error-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, #f44336, #ff9800);
+}
+
+.error-visual {
+    margin-bottom: 2rem;
+}
+
+.error-icon {
+    position: relative;
+    display: inline-block;
+}
+
+.icon-circle {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #f44336, #ff6d6d);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2rem;
+    margin: 0 auto 1.5rem;
+    position: relative;
+    z-index: 2;
+    animation: iconPop 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.error-pulse {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100px;
+    height: 100px;
+    background: rgba(244, 67, 54, 0.1);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    animation: pulse 2s ease-out infinite;
+}
+
+@keyframes iconPop {
+    0% {
+        transform: scale(0) rotate(-180deg);
+        opacity: 0;
+    }
+    70% {
+        transform: scale(1.1) rotate(10deg);
+    }
+    100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: translate(-50%, -50%) scale(0.8);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1.4);
+        opacity: 0;
+    }
+}
+
+.error-title {
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.error-message {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 2.5rem;
+    font-size: 1.05rem;
+}
+
+.error-reasons {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+}
+
+.reason {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    text-align: left;
+    padding: 1.5rem;
+    background: rgba(244, 67, 54, 0.05);
+    border-radius: var(--radius-lg);
+    border: 1px solid rgba(244, 67, 54, 0.2);
+    transition: var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+}
+
+.reason::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 3px;
+    height: 100%;
+    background: linear-gradient(to bottom, #f44336, #ff9800);
+    opacity: 0;
+    transition: var(--transition-normal);
+}
+
+.reason:hover {
+    transform: translateX(8px);
+    box-shadow: var(--shadow-md);
+}
+
+.reason:hover::before {
+    opacity: 1;
+}
+
+.reason-icon {
+    width: 48px;
+    height: 48px;
+    background: rgba(244, 67, 54, 0.1);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #f44336;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+    transition: var(--transition-normal);
+}
+
+.reason:hover .reason-icon {
+    background: #f44336;
+    color: white;
+    transform: scale(1.1);
+}
+
+.reason-content {
+    flex: 1;
+}
+
+.reason-content h3 {
+    margin: 0 0 0.5rem 0;
+    color: var(--text-primary);
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+
+.reason-content p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.error-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 2.5rem;
+    flex-wrap: wrap;
+}
+
+.error-footer {
+    border-top: 1px solid var(--border-light);
+    padding-top: 1.5rem;
+    font-size: 0.9rem;
+    color: var(--text-tertiary);
+}
+
+.footer-link {
+    color: var(--cisco-blue);
+    text-decoration: none;
+    font-weight: 500;
+    transition: var(--transition-fast);
+}
+
+.footer-link:hover {
+    color: var(--cisco-blue-dark);
+}
+
+@media (max-width: 768px) {
+    .error-card {
+        padding: 2rem;
+        margin: 1rem;
+    }
+
+    .error-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .reason {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+        padding: 1.25rem;
+    }
+
+    .reason-content {
+        text-align: center;
+    }
+
+    .error-container {
+        padding: 1rem;
+        min-height: 70vh;
+    }
+
+    .error-title {
+        font-size: 1.5rem;
+    }
+
+    .reason-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .error-card {
+        padding: 1.5rem;
+    }
+    
+    .icon-circle {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Анимация появления элементов с задержкой
+    const animatedElements = document.querySelectorAll('.animate-in');
+    animatedElements.forEach((element, index) => {
+        element.style.animationDelay = `${index * 0.15}s`;
+    });
+
+    // Анимация причин при скролле
+    const reasons = document.querySelectorAll('.reason');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animationPlayState = 'running';
+            }
+        });
+    }, { threshold: 0.1 });
+
+    reasons.forEach(reason => {
+        reason.style.animationPlayState = 'paused';
+        observer.observe(reason);
+    });
+});
+</script>
+{% endblock %}

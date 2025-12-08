@@ -1,0 +1,431 @@
+{% extends 'chapters/base.html' %}
+
+{% block title %}Мои обращения - Cisco Networking Academy{% endblock %}
+
+{% block content %}
+<div class="content-section animate-in">
+    <div class="content-header">
+        <h1>Мои обращения</h1>
+        <p>История ваших вопросов и обращений в поддержку</p>
+    </div>
+
+    <div class="content-body">
+        {% if feedbacks %}
+            <div class="feedback-list">
+                {% for feedback in feedbacks %}
+                <div class="feedback-item status-{{ feedback.status }} animate-in delay-{{ forloop.counter }}">
+                    <div class="feedback-header">
+                        <div class="feedback-main">
+                            <h3>{{ feedback.subject }}</h3>
+                            <div class="feedback-meta-mobile">
+                                <span class="feedback-type">{{ feedback.get_feedback_type_display }}</span>
+                                <span class="feedback-date">{{ feedback.created_at|date:"d.m.Y H:i" }}</span>
+                            </div>
+                        </div>
+                        <div class="feedback-info">
+                            <span class="feedback-type">{{ feedback.get_feedback_type_display }}</span>
+                            <span class="feedback-status status-{{ feedback.status }}">
+                                <span class="status-dot"></span>
+                                {{ feedback.get_status_display }}
+                            </span>
+                            <span class="feedback-date">{{ feedback.created_at|date:"d.m.Y H:i" }}</span>
+                        </div>
+                    </div>
+
+                    <div class="feedback-message">
+                        <p>{{ feedback.message|truncatewords:30 }}</p>
+                    </div>
+
+                    {% if feedback.module or feedback.chapter or feedback.section %}
+                    <div class="feedback-context">
+                        <span class="context-icon cisco-icon">location_on</span>
+                        <span class="context-text">
+                            {% if feedback.module %}Модуль {{ feedback.module.number }}{% endif %}
+                            {% if feedback.chapter %} → Глава {{ feedback.chapter.number }}{% endif %}
+                            {% if feedback.section %} → {{ feedback.section.code }}{% endif %}
+                        </span>
+                    </div>
+                    {% endif %}
+
+                    {% if feedback.admin_notes %}
+                    <div class="admin-response">
+                        <div class="response-header">
+                            <div class="response-title">
+                                <span class="cisco-icon">verified</span>
+                                Ответ администратора
+                            </div>
+                            <span class="response-date">{{ feedback.updated_at|date:"d.m.Y H:i" }}</span>
+                        </div>
+                        <div class="response-content">
+                            <p>{{ feedback.admin_notes }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="feedback-actions">
+                        <a href="{% url 'feedback_detail' feedback.id %}" class="btn btn-outline btn-sm">
+                            <span class="cisco-icon">visibility</span>
+                            Детали
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state animate-in">
+                <div class="empty-icon">
+                    <span class="cisco-icon">forum</span>
+                </div>
+                <h3>У вас пока нет обращений</h3>
+                <p>Если у вас есть вопросы или проблемы, создайте первое обращение в поддержку.</p>
+                <a href="{% url 'feedback' %}" class="btn btn-primary">
+                    <span class="cisco-icon">add</span>
+                    Создать обращение
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.feedback-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.feedback-item {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    transition: var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+}
+
+.feedback-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 4px;
+    transition: var(--transition-normal);
+}
+
+.feedback-item.status-new::before { background: var(--cisco-blue); }
+.feedback-item.status-in_progress::before { background: var(--cisco-orange); }
+.feedback-item.status-resolved::before { background: #4caf50; }
+.feedback-item.status-closed::before { background: var(--text-tertiary); }
+
+.feedback-item:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+    border-color: transparent;
+}
+
+.feedback-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.25rem;
+    gap: 1.5rem;
+}
+
+.feedback-main {
+    flex: 1;
+}
+
+.feedback-main h3 {
+    margin: 0 0 0.75rem 0;
+    color: var(--text-primary);
+    font-size: 1.2rem;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.feedback-meta-mobile {
+    display: none;
+}
+
+.feedback-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-shrink: 0;
+}
+
+.feedback-type {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.feedback-status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+.status-new { background: rgba(0, 80, 115, 0.1); color: var(--cisco-blue); }
+.status-new .status-dot { background: var(--cisco-blue); }
+
+.status-in_progress { background: rgba(255, 107, 53, 0.1); color: var(--cisco-orange); }
+.status-in_progress .status-dot { background: var(--cisco-orange); }
+
+.status-resolved { background: rgba(76, 175, 80, 0.1); color: #4caf50; }
+.status-resolved .status-dot { background: #4caf50; }
+
+.status-closed { background: rgba(158, 158, 158, 0.1); color: #9e9e9e; }
+.status-closed .status-dot { background: #9e9e9e; }
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.feedback-date {
+    font-size: 0.85rem;
+    color: var(--text-tertiary);
+    font-weight: 500;
+}
+
+.feedback-message {
+    margin-bottom: 1.25rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+}
+
+.feedback-context {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: var(--bg-secondary);
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 1.25rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.context-icon {
+    color: var(--cisco-blue);
+    font-size: 1.1rem;
+}
+
+.context-text {
+    font-weight: 500;
+}
+
+.admin-response {
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.05), rgba(76, 175, 80, 0.02));
+    padding: 1.5rem;
+    border-radius: var(--radius-lg);
+    margin-bottom: 1.25rem;
+    border: 1px solid rgba(76, 175, 80, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.admin-response::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%234caf50' fill-opacity='0.03' fill-rule='evenodd'%3E%3Ccircle cx='3' cy='3' r='3'/%3E%3Ccircle cx='13' cy='13' r='3'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+.response-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    position: relative;
+    z-index: 1;
+}
+
+.response-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #2e7d32;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.response-date {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.response-content {
+    position: relative;
+    z-index: 1;
+}
+
+.response-content p {
+    margin: 0;
+    color: var(--text-primary);
+    line-height: 1.6;
+}
+
+.feedback-actions {
+    text-align: right;
+}
+
+.btn-sm {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.85rem;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    border: 2px dashed var(--border-light);
+    position: relative;
+    overflow: hidden;
+}
+
+.empty-state::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(0, 80, 115, 0.02) 0%, rgba(255, 107, 53, 0.02) 100%);
+}
+
+.empty-icon {
+    font-size: 4rem;
+    color: var(--text-tertiary);
+    margin-bottom: 1.5rem;
+    position: relative;
+    z-index: 1;
+    opacity: 0.7;
+}
+
+.empty-state h3 {
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    font-weight: 600;
+    position: relative;
+    z-index: 1;
+}
+
+.empty-state p {
+    color: var(--text-secondary);
+    margin-bottom: 2.5rem;
+    max-width: 300px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
+    position: relative;
+    z-index: 1;
+}
+
+@media (max-width: 768px) {
+    .feedback-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .feedback-info {
+        display: none;
+    }
+
+    .feedback-meta-mobile {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .feedback-item {
+        padding: 1.5rem;
+    }
+
+    .content-body {
+        padding: 1.5rem;
+    }
+
+    .admin-response {
+        padding: 1.25rem;
+    }
+
+    .response-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .feedback-list {
+        gap: 1rem;
+    }
+
+    .feedback-item {
+        padding: 1.25rem;
+    }
+
+    .empty-state {
+        padding: 3rem 1.5rem;
+    }
+
+    .feedback-actions {
+        text-align: center;
+    }
+    
+    .feedback-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Анимация появления элементов списка
+    const feedbackItems = document.querySelectorAll('.feedback-item');
+    feedbackItems.forEach((item, index) => {
+        item.style.animationDelay = `${index * 0.1}s`;
+    });
+
+    // Плавное раскрытие деталей при наведении
+    feedbackItems.forEach(item => {
+        item.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-4px)';
+        });
+        
+        item.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+});
+</script>
+{% endblock %}
+[file content end]

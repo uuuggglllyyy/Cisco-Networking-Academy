@@ -1,0 +1,419 @@
+{% extends 'chapters/base.html' %}
+
+{% block title %}Обратная связь - Cisco Networking Academy{% endblock %}
+
+{% block content %}
+<div class="content-section animate-in">
+    <div class="content-header">
+        <h1>Обратная связь</h1>
+        <p>Мы всегда готовы помочь с вопросами и предложениями</p>
+    </div>
+
+    <div class="content-body">
+        <div class="feedback-form-container">
+            <form method="post" class="feedback-form">
+                {% csrf_token %}
+
+                <div class="form-grid">
+                    <div class="form-group animate-in delay-1">
+                        <label for="{{ form.feedback_type.id_for_label }}" class="form-label">Тип обращения</label>
+                        {{ form.feedback_type }}
+                        {% if form.feedback_type.errors %}
+                        <div class="form-errors">
+                            {% for error in form.feedback_type.errors %}
+                            <span class="error-message">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group animate-in delay-2">
+                        <label for="{{ form.subject.id_for_label }}" class="form-label">Тема обращения</label>
+                        {{ form.subject }}
+                        {% if form.subject.errors %}
+                        <div class="form-errors">
+                            {% for error in form.subject.errors %}
+                            <span class="error-message">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-group animate-in delay-3">
+                    <label for="{{ form.message.id_for_label }}" class="form-label">Подробное описание</label>
+                    {{ form.message }}
+                    {% if form.message.errors %}
+                    <div class="form-errors">
+                        {% for error in form.message.errors %}
+                        <span class="error-message">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    <div class="form-hint">Опишите вашу проблему, вопрос или предложение максимально подробно</div>
+                </div>
+
+                <div class="form-section animate-in delay-1">
+                    <h3 class="section-title">Контекст курса (опционально)</h3>
+                    <div class="form-grid triple">
+                        <div class="form-group">
+                            <label for="{{ form.module.id_for_label }}" class="form-label">Модуль</label>
+                            {{ form.module }}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.chapter.id_for_label }}" class="form-label">Глава</label>
+                            {{ form.chapter }}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.section.id_for_label }}" class="form-label">Раздел</label>
+                            {{ form.section }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions animate-in delay-2">
+                    <button type="submit" class="btn btn-primary btn-large">
+                        <span class="btn-content">
+                            <span class="cisco-icon">send</span>
+                            Отправить обращение
+                        </span>
+                        <span class="btn-loader">
+                            <div class="loader-dots">
+                                <div class="dot"></div>
+                                <div class="dot"></div>
+                                <div class="dot"></div>
+                            </div>
+                        </span>
+                    </button>
+                    <a href="{% url 'my_feedback' %}" class="btn btn-outline">
+                        <span class="cisco-icon">list_alt</span>
+                        Мои обращения
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.feedback-form-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.feedback-form {
+    background: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.form-grid.triple {
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+.form-group {
+    margin-bottom: 2rem;
+    position: relative;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    transition: var(--transition-fast);
+}
+
+.form-control {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    transition: var(--transition-normal);
+    background: var(--bg-primary);
+    font-family: inherit;
+    position: relative;
+    z-index: 1;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--cisco-blue);
+    box-shadow: 0 0 0 4px rgba(0, 80, 115, 0.1);
+    transform: translateY(-1px);
+}
+
+.form-control:hover {
+    border-color: var(--text-tertiary);
+}
+
+select.form-control {
+    background: var(--bg-primary) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23005073' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E") no-repeat right 1rem center;
+    background-size: 14px;
+    appearance: none;
+    padding-right: 3rem;
+    cursor: pointer;
+}
+
+textarea.form-control {
+    min-height: 160px;
+    resize: vertical;
+    line-height: 1.6;
+    transition: min-height 0.3s ease;
+}
+
+textarea.form-control:focus {
+    min-height: 180px;
+}
+
+.form-section {
+    margin: 3rem 0;
+    padding: 2rem;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-light);
+    position: relative;
+    overflow: hidden;
+}
+
+.form-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(0, 80, 115, 0.02) 0%, rgba(255, 107, 53, 0.02) 100%);
+    z-index: 0;
+}
+
+.section-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+.form-errors {
+    margin-top: 0.75rem;
+}
+
+.error-message {
+    display: block;
+    color: #d70015;
+    font-size: 0.85rem;
+    margin-bottom: 0.25rem;
+    padding: 0.5rem 0.75rem;
+    background: rgba(215, 0, 21, 0.05);
+    border-radius: var(--radius-sm);
+    border-left: 3px solid #d70015;
+}
+
+.form-hint {
+    font-size: 0.85rem;
+    color: var(--text-tertiary);
+    margin-top: 0.75rem;
+    line-height: 1.5;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-start;
+    align-items: center;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-light);
+}
+
+.btn-large {
+    padding: 1.125rem 2.5rem;
+    font-size: 1.05rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-content, .btn-loader {
+    transition: var(--transition-normal);
+}
+
+.btn-loader {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+}
+
+.loader-dots {
+    display: flex;
+    gap: 4px;
+}
+
+.dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    animation: dotPulse 1.4s ease-in-out infinite both;
+}
+
+.dot:nth-child(2) { animation-delay: 0.16s; }
+.dot:nth-child(3) { animation-delay: 0.32s; }
+
+@keyframes dotPulse {
+    0%, 80%, 100% {
+        transform: scale(0.8);
+        opacity: 0.5;
+    }
+    40% {
+        transform: scale(1.2);
+        opacity: 1;
+    }
+}
+
+.btn.loading .btn-content {
+    opacity: 0;
+    transform: translateY(10px);
+}
+
+.btn.loading .btn-loader {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-grid.triple {
+        grid-template-columns: 1fr;
+    }
+
+    .form-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .form-section {
+        padding: 1.5rem;
+        margin: 2rem 0;
+    }
+
+    .content-body {
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .feedback-form-container {
+        margin: 0 -1rem;
+    }
+    
+    .form-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('.feedback-form');
+    const submitBtn = form.querySelector('button[type="submit"]');
+    
+    form.addEventListener('submit', function() {
+        submitBtn.classList.add('loading');
+    });
+
+    // Анимация фокуса для полей
+    const inputs = form.querySelectorAll('.form-control');
+    inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            this.parentElement.classList.add('focused');
+        });
+        
+        input.addEventListener('blur', function() {
+            if (!this.value) {
+                this.parentElement.classList.remove('focused');
+            }
+        });
+    });
+
+    // Динамическое обновление глав и разделов
+    const moduleSelect = document.getElementById('id_module');
+    const chapterSelect = document.getElementById('id_chapter');
+    const sectionSelect = document.getElementById('id_section');
+
+    function updateChapters() {
+        const moduleId = moduleSelect.value;
+        chapterSelect.innerHTML = '<option value="">---------</option>';
+        sectionSelect.innerHTML = '<option value="">---------</option>';
+
+        if (moduleId) {
+            chapterSelect.disabled = true;
+            fetch(`/api/chapters/?module=${moduleId}`)
+                .then(response => response.json())
+                .then(data => {
+                    data.chapters.forEach(chapter => {
+                        const option = document.createElement('option');
+                        option.value = chapter.id;
+                        option.textContent = `Глава ${chapter.number}. ${chapter.title}`;
+                        chapterSelect.appendChild(option);
+                    });
+                    chapterSelect.disabled = false;
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    }
+
+    function updateSections() {
+        const chapterId = chapterSelect.value;
+        sectionSelect.innerHTML = '<option value="">---------</option>';
+
+        if (chapterId) {
+            sectionSelect.disabled = true;
+            fetch(`/api/sections/?chapter=${chapterId}`)
+                .then(response => response.json())
+                .then(data => {
+                    data.sections.forEach(section => {
+                        const option = document.createElement('option');
+                        option.value = section.id;
+                        option.textContent = `${section.code} ${section.title}`;
+                        sectionSelect.appendChild(option);
+                    });
+                    sectionSelect.disabled = false;
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    }
+
+    if (moduleSelect) {
+        moduleSelect.addEventListener('change', updateChapters);
+    }
+
+    if (chapterSelect) {
+        chapterSelect.addEventListener('change', updateSections);
+    }
+});
+</script>
+{% endblock %}
+[file content end]

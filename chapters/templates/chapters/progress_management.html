@@ -1,0 +1,604 @@
+{% extends 'chapters/base.html' %}
+
+{% block title %}Управление прогрессом - Cisco Networking Academy{% endblock %}
+
+{% block content %}
+<div class="content-section animate-in">
+    <div class="content-header">
+        <h1>Управление прогрессом</h1>
+        <p>Отслеживайте и управляйте вашим прогрессом обучения</p>
+    </div>
+
+    <div class="content-body">
+        <!-- Хлебные крошки -->
+        <nav class="breadcrumb animate-in delay-1">
+            <a href="{% url 'module_list' %}">Главная</a>
+            <span class="breadcrumb-separator">/</span>
+            <span>Прогресс обучения</span>
+        </nav>
+
+        <!-- Основная статистика -->
+        <div class="progress-overview animate-in delay-1">
+            <div class="progress-stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <span class="cisco-icon">check_circle</span>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value">{{ total_progress.completed_sections }}</div>
+                        <div class="stat-label">Пройдено разделов</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <span class="cisco-icon">menu_book</span>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value">{{ total_progress.total_sections }}</div>
+                        <div class="stat-label">Всего разделов</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <span class="cisco-icon">schedule</span>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value status-{% if total_progress.progress_percentage == 100 %}completed{% elif total_progress.progress_percentage > 0 %}in-progress{% else %}not-started{% endif %}">
+                            {% if total_progress.progress_percentage == 100 %}
+                                Завершено
+                            {% elif total_progress.progress_percentage > 0 %}
+                                В процессе
+                            {% else %}
+                                Не начато
+                            {% endif %}
+                        </div>
+                        <div class="stat-label">Статус курса</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Детальный прогресс -->
+        <div class="progress-details animate-in delay-2">
+            <div class="progress-main-card">
+                <div class="progress-header">
+                    <h3>Детальный прогресс</h3>
+                    <div class="progress-badge {% if total_progress.progress_percentage == 100 %}completed{% elif total_progress.progress_percentage > 0 %}in-progress{% else %}not-started{% endif %}">
+                        {{ total_progress.progress_percentage }}%
+                    </div>
+                </div>
+                
+                <div class="progress-bar-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: {{ total_progress.progress_percentage }}%"></div>
+                    </div>
+                    <div class="progress-text">
+                        {{ total_progress.completed_sections }} из {{ total_progress.total_sections }} разделов завершено
+                    </div>
+                </div>
+
+                {% if test_mode and not user.is_authenticated %}
+                <div class="demo-notice">
+                    <span class="cisco-icon">science</span>
+                    Демо-режим: прогресс сохраняется для тестового пользователя
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Управление прогрессом -->
+        <div class="management-section animate-in delay-3">
+            <div class="section-header">
+                <h3>Управление прогрессом</h3>
+                <p>Действия с вашими данными о прогрессе</p>
+            </div>
+
+            <div class="warning-card">
+                <div class="warning-icon">
+                    <span class="cisco-icon">warning</span>
+                </div>
+                <div class="warning-content">
+                    <h4>Внимание: критическое действие</h4>
+                    <p>Сброс прогресса удалит все данные о пройденных разделах. Это действие нельзя отменить.</p>
+                </div>
+            </div>
+
+            <div class="management-actions">
+                <button id="reset-progress" class="btn btn-danger">
+                    <span class="cisco-icon">delete</span>
+                    Сбросить весь прогресс
+                </button>
+                <button id="export-progress" class="btn btn-outline">
+                    <span class="cisco-icon">download</span>
+                    Экспорт прогресса
+                </button>
+            </div>
+
+            <!-- Диалог подтверждения -->
+            <div id="reset-confirm" class="confirmation-dialog">
+                <div class="dialog-header">
+                    <div class="dialog-icon">
+                        <span class="cisco-icon">help</span>
+                    </div>
+                    <div class="dialog-content">
+                        <h4>Подтверждение сброса прогресса</h4>
+                        <p>Вы уверены, что хотите сбросить весь прогресс? Это действие удалит все данные о пройденных разделах и не может быть отменено.</p>
+                    </div>
+                </div>
+                <div class="dialog-actions">
+                    <button id="confirm-reset" class="btn btn-danger">
+                        <span class="cisco-icon">delete</span>
+                        Да, сбросить прогресс
+                    </button>
+                    <button id="cancel-reset" class="btn btn-outline">
+                        Отмена
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Хлебные крошки */
+.breadcrumb {
+    margin-bottom: 2rem;
+}
+
+/* Обзор прогресса */
+.progress-overview {
+    margin-bottom: 2.5rem;
+}
+
+.progress-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: var(--transition-normal);
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--cisco-blue);
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, var(--cisco-blue), var(--cisco-blue-light));
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.stat-content {
+    flex: 1;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.stat-value.status-completed {
+    color: #4caf50;
+}
+
+.stat-value.status-in-progress {
+    color: var(--cisco-orange);
+}
+
+.stat-value.status-not-started {
+    color: var(--text-tertiary);
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+/* Детальный прогресс */
+.progress-details {
+    margin-bottom: 2.5rem;
+}
+
+.progress-main-card {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.progress-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.progress-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+}
+
+.progress-badge.completed {
+    background: #e8f5e8;
+    color: #4caf50;
+}
+
+.progress-badge.in-progress {
+    background: #fff3e0;
+    color: var(--cisco-orange);
+}
+
+.progress-badge.not-started {
+    background: var(--bg-tertiary);
+    color: var(--text-tertiary);
+}
+
+.progress-bar-container {
+    margin-bottom: 1rem;
+}
+
+.progress-text {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    text-align: center;
+    margin-top: 0.75rem;
+}
+
+.demo-notice {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: #e8f5e8;
+    border: 1px solid #c8e6c9;
+    border-radius: var(--radius-md);
+    color: #2e7d32;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-top: 1.5rem;
+}
+
+/* Управление прогрессом */
+.management-section {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.section-header {
+    margin-bottom: 2rem;
+}
+
+.section-header h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.section-header p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+.warning-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    background: #fff3e0;
+    border: 1px solid #ffb74d;
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.warning-icon {
+    color: #ef6c00;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.warning-content h4 {
+    margin: 0 0 0.5rem 0;
+    color: #ef6c00;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.warning-content p {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.management-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #f44336, #d32f2f);
+    border: none;
+    color: white;
+}
+
+.btn-danger:hover:not(:disabled) {
+    background: linear-gradient(135deg, #d32f2f, #c62828);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+}
+
+/* Диалог подтверждения */
+.confirmation-dialog {
+    display: none;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    margin-top: 2rem;
+    animation: fadeIn 0.3s ease;
+}
+
+.dialog-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.dialog-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--bg-primary);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--cisco-orange);
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.dialog-content h4 {
+    margin: 0 0 0.75rem 0;
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.dialog-content p {
+    margin: 0;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+.dialog-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+    .progress-stats-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .stat-card {
+        padding: 1.25rem;
+    }
+
+    .management-actions {
+        flex-direction: column;
+    }
+
+    .dialog-actions {
+        flex-direction: column;
+    }
+
+    .warning-card {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .progress-main-card {
+        padding: 1.5rem;
+    }
+
+    .management-section {
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .progress-stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .stat-card {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const resetButton = document.getElementById('reset-progress');
+    const confirmSection = document.getElementById('reset-confirm');
+    const confirmButton = document.getElementById('confirm-reset');
+    const cancelButton = document.getElementById('cancel-reset');
+    const exportButton = document.getElementById('export-progress');
+
+    if (resetButton) {
+        resetButton.addEventListener('click', function() {
+            confirmSection.style.display = 'block';
+            confirmSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        });
+    }
+
+    if (cancelButton) {
+        cancelButton.addEventListener('click', function() {
+            confirmSection.style.display = 'none';
+        });
+    }
+
+    if (confirmButton) {
+        confirmButton.addEventListener('click', function() {
+            confirmButton.innerHTML = '<span class="cisco-icon">pending</span>Сбрасываем...';
+            confirmButton.disabled = true;
+
+            fetch('/api/progress/reset/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    showNotification('Прогресс успешно сброшен!', 'success');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    showNotification('Ошибка при сбросе прогресса', 'error');
+                    resetButtonState();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Ошибка при сбросе прогресса', 'error');
+                resetButtonState();
+            });
+
+            function resetButtonState() {
+                confirmButton.innerHTML = '<span class="cisco-icon">delete</span>Да, сбросить прогресс';
+                confirmButton.disabled = false;
+            }
+        });
+    }
+
+    if (exportButton) {
+        exportButton.addEventListener('click', function() {
+            exportButton.innerHTML = '<span class="cisco-icon">pending</span>Экспортируем...';
+            exportButton.disabled = true;
+
+            fetch('/api/progress/export/')
+            .then(response => response.json())
+            .then(data => {
+                const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `cisco-progress-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                showNotification('Прогресс успешно экспортирован!', 'success');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Ошибка при экспорте прогресса', 'error');
+            })
+            .finally(() => {
+                exportButton.innerHTML = '<span class="cisco-icon">download</span>Экспорт прогресса';
+                exportButton.disabled = false;
+            });
+        });
+    }
+
+    function showNotification(message, type) {
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            background: ${type === 'success' ? '#e8f5e8' : '#ffebee'};
+            color: ${type === 'success' ? '#2e7d32' : '#c62828'};
+            border: 1px solid ${type === 'success' ? '#c8e6c9' : '#ffcdd2'};
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            z-index: 10000;
+            font-weight: 600;
+            animation: slideIn 0.3s ease;
+        `;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 300);
+        }, 3000);
+    }
+});
+
+// Стили для анимации уведомлений
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOut {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+    }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}

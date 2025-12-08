@@ -1,0 +1,326 @@
+{% extends 'chapters/base.html' %}
+
+{% block title %}Вход - Cisco Networking Academy{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="auth-logo">
+                <div class="logo-icon">
+                    <span class="cisco-icon">router</span>
+                </div>
+            </div>
+            <h2>Вход в систему</h2>
+            <p>Мы рады видеть вас вновь</p>
+        </div>
+
+        {% if error %}
+        <div class="alert alert-error">
+            <span class="alert-icon cisco-icon">error</span>
+            <span class="alert-message">{{ error }}</span>
+        </div>
+        {% endif %}
+
+        <form method="post" class="auth-form">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="username" class="form-label">Имя пользователя</label>
+                <div class="input-container">
+                    <span class="input-icon cisco-icon">person</span>
+                    <input type="text" id="username" name="username" required class="form-control"
+                           placeholder="Введите ваш username" autocomplete="username"
+                           value="{{ username_value|default:'' }}">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password" class="form-label">Пароль</label>
+                <div class="input-container">
+                    <span class="input-icon cisco-icon">lock</span>
+                    <input type="password" id="password" name="password" required class="form-control"
+                           placeholder="Введите ваш пароль" autocomplete="current-password">
+                    <button type="button" class="password-toggle" id="passwordToggle">
+                        <span class="cisco-icon">visibility</span>
+                    </button>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-full">
+                <span class="cisco-icon">login</span>
+                Войти в систему
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            <p>Нет аккаунта? <a href="{% url 'register' %}" class="auth-link">Зарегистрироваться</a></p>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Базовые стили без переменных */
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 70vh;
+    padding: 2rem;
+    background: #f8f9fa;
+}
+
+.auth-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    padding: 3rem;
+    width: 100%;
+    max-width: 420px;
+    border: 1px solid #e1e5e9;
+    position: relative;
+}
+
+.auth-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, #005073, #ff6b35);
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.auth-logo {
+    margin-bottom: 1.5rem;
+}
+
+.logo-icon {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, #005073, #0496d4);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    margin: 0 auto;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.auth-header h2 {
+    color: #2d3748;
+    margin-bottom: 0.75rem;
+    font-size: 1.75rem;
+    font-weight: 700;
+}
+
+.auth-header p {
+    color: #718096;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+/* Стили для ошибки */
+.alert {
+    display: flex !important;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+.alert-error {
+    background: #fee;
+    color: #d70015;
+    border: 2px solid #d70015;
+}
+
+.alert-icon {
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.alert-message {
+    line-height: 1.4;
+    font-weight: 500;
+}
+
+/* Стили формы */
+.form-group {
+    margin-bottom: 1.75rem;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+    color: #2d3748;
+    font-size: 0.95rem;
+}
+
+.input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-icon {
+    position: absolute;
+    left: 1rem;
+    color: #a0aec0;
+    font-size: 1.1rem;
+    z-index: 2;
+}
+
+.form-control {
+    width: 100%;
+    padding: 1rem 1rem 1rem 3rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    background: white;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    box-sizing: border-box; /* Важно! */
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #005073;
+    box-shadow: 0 0 0 3px rgba(0, 80, 115, 0.1);
+}
+
+.form-control:hover {
+    border-color: #a0aec0;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 1rem;
+    background: none;
+    border: none;
+    color: #a0aec0;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    z-index: 2;
+}
+
+.password-toggle:hover {
+    color: #005073;
+    background: #f7fafc;
+}
+
+/* Кнопка */
+.btn-primary {
+    background: #005073;
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    margin-top: 0.5rem;
+}
+
+.btn-primary:hover {
+    background: #003d5c;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 80, 115, 0.3);
+}
+
+/* Футер */
+.auth-footer {
+    text-align: center;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e2e8f0;
+    color: #718096;
+}
+
+.auth-link {
+    color: #005073;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s ease;
+}
+
+.auth-link:hover {
+    color: #003d5c;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .auth-container {
+        padding: 1rem;
+        min-height: 60vh;
+    }
+
+    .auth-card {
+        padding: 2.5rem 2rem;
+    }
+
+    .auth-header h2 {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .auth-card {
+        padding: 2rem 1.5rem;
+    }
+
+    .logo-icon {
+        width: 56px;
+        height: 56px;
+        font-size: 1.25rem;
+    }
+
+    .form-control {
+        padding: 0.875rem 0.875rem 0.875rem 2.75rem;
+    }
+
+    .input-icon {
+        left: 0.875rem;
+    }
+
+    .password-toggle {
+        right: 0.875rem;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const passwordToggle = document.getElementById('passwordToggle');
+    const passwordInput = document.getElementById('password');
+
+    if (passwordToggle && passwordInput) {
+        passwordToggle.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.querySelector('.cisco-icon').textContent = type === 'password' ? 'visibility' : 'visibility_off';
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,545 @@
+{% extends 'chapters/base.html' %}
+
+{% block title %}{{ module.title }} - Cisco Networking Academy{% endblock %}
+
+{% block content %}
+<nav class="breadcrumb animate-in">
+    <a href="{% url 'module_list' %}">Модули</a>
+    <span class="breadcrumb-separator">/</span>
+    <span>Модуль {{ module.number }}</span>
+</nav>
+
+<div class="content-section animate-in">
+    <div class="content-header">
+        <h1>Модуль {{ module.number }}. {{ module.title }}</h1>
+        <p>{{ module.description }}</p>
+    </div>
+
+    <div class="content-body">
+        <!-- Прогресс модуля по главам -->
+        {% if user.is_authenticated or test_mode %}
+        <div class="progress-card">
+            <div class="progress-header">
+                <h3>Прогресс модуля</h3>
+                <div class="section-meta">
+                    Глав: <strong>{{ completed_chapters_count }}/{{ module.chapters.count }}</strong>
+                </div>
+            </div>
+            <div class="progress-info">
+                <span>Прогресс по главам</span>
+                <span class="progress-percentage">
+                    {% if module.chapters.count > 0 %}
+                        {% widthratio completed_chapters_count module.chapters.count 100 %}%
+                    {% else %}
+                        0%
+                    {% endif %}
+                </span>
+            </div>
+            <div class="progress-bar">
+                {% if module.chapters.count > 0 %}
+                    <div class="progress-fill" style="width: {% widthratio completed_chapters_count module.chapters.count 100 %}%"></div>
+                {% else %}
+                    <div class="progress-fill" style="width: 0%"></div>
+                {% endif %}
+            </div>
+
+            {% if test_mode and not user.is_authenticated %}
+            <div class="demo-badge">
+                ✅ Демо-режим: прогресс сохраняется
+            </div>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="progress-card auth-prompt">
+            <div class="auth-icon">📊</div>
+            <h3>Отслеживание прогресса</h3>
+            <div style="margin-bottom: 1.5rem;"></div>
+            <p>Войдите в систему, чтобы отслеживать прогресс по модулю</p>
+            <div style="margin-top: 20px;"></div>
+            <a href="{% url 'login' %}" class="btn">
+                <span class="btn-icon">🔐</span>
+                Войти в систему
+            </a>
+        </div>
+        {% endif %}
+
+        <div class="section-header">
+            <h2>Главы модуля</h2>
+            <div class="section-meta">
+                Всего глав: <strong>{{ chapters|length }}</strong>
+            </div>
+        </div>
+
+        <div class="items-grid">
+            {% for chapter in chapters %}
+            {% with chapter_progress=chapter.progress %}
+            <a href="{% url 'chapter_detail' module.id chapter.id %}" class="item-card animate-in delay-{% cycle '1' '2' '3' %}">
+                <div class="item-card-content">
+                    <div class="item-header">
+                        <div class="item-number">Глава {{ chapter.number }}</div>
+                        <div class="item-stats">
+                            <span title="Количество разделов">
+                                📑 {{ chapter.sections.count }}
+                            </span>
+                            {% if user.is_authenticated or test_mode %}
+                            <span title="Прогресс по разделам">
+                                {{ chapter_progress.progress_percentage }}%
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <h3>{{ chapter.title }}</h3>
+                    {% if chapter.description %}
+                    <p>{{ chapter.description|truncatewords:15 }}</p>
+                    {% endif %}
+
+                    {% if user.is_authenticated or test_mode %}
+                    <!-- Прогресс по разделам для главы -->
+                    <div class="progress-bar small">
+                        <div class="progress-fill" style="width: {{ chapter_progress.progress_percentage }}%"></div>
+                    </div>
+                    {% endif %}
+
+                    <div class="item-meta">
+                        {% if user.is_authenticated or test_mode %}
+                        <span class="status-badge {% if chapter_progress.progress_percentage == 100 %}completed{% elif chapter_progress.progress_percentage > 0 %}in-progress{% else %}not-started{% endif %}">
+                            {% if chapter_progress.progress_percentage == 100 %}
+                                <span class="status-icon">✓</span>Завершена
+                            {% elif chapter_progress.progress_percentage > 0 %}
+                                <span class="status-icon">⏳</span>В процессе
+                            {% else %}
+                                <span class="status-icon">●</span>Не начата
+                            {% endif %}
+                        </span>
+                        <!-- Показываем прогресс по разделам -->
+                        <span>{{ chapter_progress.completed_sections }}/{{ chapter_progress.total_sections }} разделов</span>
+                        {% else %}
+                        <span class="status-badge locked">
+                            <span class="status-icon">🔒</span>Войдите для отслеживания
+                        </span>
+                        <span>{{ chapter.sections.count }} разделов</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </a>
+            {% endwith %}
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<style>
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 2.5rem;
+    font-size: 0.9rem;
+}
+
+.breadcrumb a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: var(--transition-fast);
+    font-weight: 500;
+}
+
+.breadcrumb a:hover {
+    color: var(--cisco-blue);
+}
+
+.breadcrumb-separator {
+    color: var(--text-tertiary);
+}
+
+.content-section {
+    background: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    border: 1px solid var(--border-light);
+    transition: var(--transition-normal);
+}
+
+.content-header {
+    padding: 3rem 2.5rem;
+    background: linear-gradient(135deg, var(--cisco-blue), var(--cisco-blue-light));
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.content-header h1 {
+    font-size: 2.25rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.75rem;
+    position: relative;
+    z-index: 1;
+}
+
+.content-header p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    font-weight: 400;
+    position: relative;
+    z-index: 1;
+}
+
+.content-body {
+    padding: 2.5rem;
+}
+
+.progress-card {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.progress-card.auth-prompt {
+    text-align: center;
+    background: linear-gradient(135deg, var(--bg-primary), var(--bg-secondary));
+}
+
+.auth-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.8;
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.progress-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.progress-percentage {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--cisco-blue);
+}
+
+.progress-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: var(--bg-tertiary);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 1rem 0;
+}
+
+.progress-bar.small {
+    height: 6px;
+    margin: 1rem 0;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--cisco-blue), var(--cisco-orange));
+    border-radius: 4px;
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.demo-badge {
+    background: #e8f5e8;
+    padding: 0.75rem;
+    border-radius: var(--radius-md);
+    margin-top: 1rem;
+    font-size: 0.8rem;
+    text-align: center;
+    color: #2e7d32;
+    border: 1px solid #c8e6c9;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.section-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.section-meta {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.items-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 1.75rem;
+}
+
+.item-card {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    transition: var(--transition-normal);
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    position: relative;
+    overflow: hidden;
+}
+
+.item-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-lg);
+    border-color: transparent;
+}
+
+.item-card-content {
+    position: relative;
+    z-index: 1;
+}
+
+.item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.25rem;
+}
+
+.item-number {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--cisco-blue);
+    background: rgba(0, 80, 115, 0.08);
+    padding: 0.375rem 0.875rem;
+    border-radius: 20px;
+    letter-spacing: 0.02em;
+}
+
+.item-stats {
+    display: flex;
+    gap: 0.75rem;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.item-stats span {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+}
+
+.item-card h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+}
+
+.item-card p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.item-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border-light);
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: var(--transition-fast);
+}
+
+.status-icon {
+    font-size: 0.9rem;
+}
+
+.status-badge.completed {
+    background: #e8f5e8;
+    color: #2e7d32;
+    border: 1px solid #c8e6c9;
+}
+
+.status-badge.in-progress {
+    background: #fff3e0;
+    color: #ef6c00;
+    border: 1px solid #ffe0b2;
+}
+
+.status-badge.not-started {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-light);
+}
+
+.status-badge.locked {
+    background: #e3f2fd;
+    color: #1565c0;
+    border: 1px solid #bbdefb;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 2rem;
+    background: var(--cisco-blue);
+    color: white;
+    text-decoration: none;
+    border-radius: var(--radius-md);
+    border: none;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: var(--transition-normal);
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.btn:hover {
+    background: var(--cisco-blue-dark);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-outline {
+    background: transparent;
+    color: var(--cisco-blue);
+    border: 2px solid var(--cisco-blue);
+}
+
+.btn-outline:hover {
+    background: var(--cisco-blue);
+    color: white;
+}
+
+.btn-icon {
+    font-size: 1.1rem;
+}
+
+@media (max-width: 1024px) {
+    .content-body {
+        padding: 2rem;
+    }
+
+    .items-grid {
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .content-header {
+        padding: 2rem 1.5rem;
+    }
+
+    .content-header h1 {
+        font-size: 1.75rem;
+    }
+
+    .content-body {
+        padding: 1.5rem;
+    }
+
+    .items-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .progress-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .progress-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .item-stats {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .item-meta {
+        flex-direction: column;
+        gap: 0.75rem;
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 480px) {
+    .content-header h1 {
+        font-size: 1.5rem;
+    }
+
+    .progress-card {
+        padding: 1.5rem;
+    }
+
+    .item-card {
+        padding: 1.5rem;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Анимация появления карточек
+    const cards = document.querySelectorAll('.item-card');
+    cards.forEach((card, index) => {
+        card.style.animationDelay = `${index * 0.1}s`;
+    });
+
+    // Анимация появления элементов
+    const animatedElements = document.querySelectorAll('.animate-in');
+    animatedElements.forEach((element, index) => {
+        element.style.animationDelay = `${index * 0.1}s`;
+    });
+});
+</script>
+{% endblock %}

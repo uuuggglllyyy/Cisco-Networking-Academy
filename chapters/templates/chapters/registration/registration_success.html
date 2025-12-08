@@ -1,0 +1,406 @@
+{% extends 'chapters/base.html' %}
+
+{% block title %}Регистрация завершена - Cisco Networking Academy{% endblock %}
+
+{% block content %}
+<div class="success-container">
+    <div class="success-card animate-in">
+        <div class="success-visual">
+            <div class="success-icon">
+                <div class="icon-circle">
+                    <span class="cisco-icon">email</span>
+                </div>
+                <div class="envelope-animation">
+                    <div class="envelope"></div>
+                    <div class="paper"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="success-content">
+            <h1 class="success-title">Регистрация почти завершена!</h1>
+            <p class="success-message">
+                На ваш email адрес отправлено письмо с ссылкой для подтверждения.
+                Пожалуйста, проверьте вашу почту и перейдите по ссылке в письме для активации аккаунта.
+            </p>
+
+            <div class="success-steps">
+                <div class="step animate-in delay-1">
+                    <div class="step-icon">
+                        <span class="cisco-icon">inbox</span>
+                    </div>
+                    <div class="step-content">
+                        <h3>Проверьте почту</h3>
+                        <p>Откройте папку "Входящие" и "Спам"</p>
+                    </div>
+                </div>
+                
+                <div class="step animate-in delay-2">
+                    <div class="step-icon">
+                        <span class="cisco-icon">drafts</span>
+                    </div>
+                    <div class="step-content">
+                        <h3>Найдите письмо</h3>
+                        <p>Тема: "Подтверждение email - Cisco Networking Academy"</p>
+                    </div>
+                </div>
+                
+                <div class="step animate-in delay-3">
+                    <div class="step-icon">
+                        <span class="cisco-icon">verified</span>
+                    </div>
+                    <div class="step-content">
+                        <h3>Подтвердите email</h3>
+                        <p>Нажмите на кнопку подтверждения в письме</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="success-actions animate-in delay-4">
+                <a href="{% url 'login' %}" class="btn btn-primary">
+                    <span class="cisco-icon">login</span>
+                    Войти в систему
+                </a>
+                <a href="{% url 'module_list' %}" class="btn btn-outline">
+                    <span class="cisco-icon">home</span>
+                    На главную
+                </a>
+            </div>
+
+            <div class="success-footer">
+                <p>Не получили письмо? <a href="{% url 'feedback' %}" class="footer-link">Свяжитесь с поддержкой</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.success-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+    padding: 2rem;
+}
+
+.success-card {
+    background: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    padding: 3rem;
+    text-align: center;
+    max-width: 600px;
+    width: 100%;
+    border: 1px solid var(--border-light);
+    position: relative;
+    overflow: hidden;
+}
+
+.success-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--cisco-blue), var(--cisco-orange));
+}
+
+.success-visual {
+    margin-bottom: 2rem;
+}
+
+.success-icon {
+    position: relative;
+    display: inline-block;
+}
+
+.icon-circle {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--cisco-blue), var(--cisco-blue-light));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2rem;
+    margin: 0 auto 1.5rem;
+    position: relative;
+    z-index: 2;
+    animation: iconPop 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.envelope-animation {
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    width: 40px;
+    height: 40px;
+    animation: float 3s ease-in-out infinite;
+}
+
+.envelope {
+    width: 30px;
+    height: 20px;
+    background: var(--cisco-orange);
+    position: relative;
+    border-radius: 4px;
+}
+
+.envelope::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 0;
+    width: 0;
+    height: 0;
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-bottom: 8px solid var(--cisco-orange);
+}
+
+.paper {
+    position: absolute;
+    top: 6px;
+    left: 5px;
+    width: 20px;
+    height: 8px;
+    background: white;
+    border-radius: 2px;
+    animation: paperSlide 2s ease-in-out infinite;
+}
+
+@keyframes iconPop {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    70% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-10px) rotate(5deg);
+    }
+}
+
+@keyframes paperSlide {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-2px);
+    }
+}
+
+.success-title {
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.success-message {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 2.5rem;
+    font-size: 1.05rem;
+}
+
+.success-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    margin-bottom: 2.5rem;
+}
+
+.step {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    text-align: left;
+    padding: 1.5rem;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-light);
+    transition: var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+}
+
+.step::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 3px;
+    height: 100%;
+    background: linear-gradient(to bottom, var(--cisco-blue), var(--cisco-orange));
+    opacity: 0;
+    transition: var(--transition-normal);
+}
+
+.step:hover {
+    transform: translateX(8px);
+    box-shadow: var(--shadow-md);
+}
+
+.step:hover::before {
+    opacity: 1;
+}
+
+.step-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--bg-primary);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--cisco-blue);
+    font-size: 1.25rem;
+    flex-shrink: 0;
+    transition: var(--transition-normal);
+}
+
+.step:hover .step-icon {
+    background: var(--cisco-blue);
+    color: white;
+    transform: scale(1.1);
+}
+
+.step-content {
+    flex: 1;
+}
+
+.step-content h3 {
+    margin: 0 0 0.5rem 0;
+    color: var(--text-primary);
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+
+.step-content p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.success-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 2.5rem;
+    flex-wrap: wrap;
+}
+
+.success-footer {
+    border-top: 1px solid var(--border-light);
+    padding-top: 1.5rem;
+    font-size: 0.9rem;
+    color: var(--text-tertiary);
+}
+
+.footer-link {
+    color: var(--cisco-blue);
+    text-decoration: none;
+    font-weight: 500;
+    transition: var(--transition-fast);
+}
+
+.footer-link:hover {
+    color: var(--cisco-blue-dark);
+}
+
+@media (max-width: 768px) {
+    .success-card {
+        padding: 2rem;
+        margin: 1rem;
+    }
+
+    .success-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .step {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+        padding: 1.25rem;
+    }
+
+    .step-content {
+        text-align: center;
+    }
+
+    .success-container {
+        padding: 1rem;
+        min-height: 70vh;
+    }
+
+    .success-title {
+        font-size: 1.5rem;
+    }
+
+    .step-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .success-card {
+        padding: 1.5rem;
+    }
+    
+    .icon-circle {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+    }
+    
+    .envelope-animation {
+        display: none;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Анимация появления элементов с задержкой
+    const animatedElements = document.querySelectorAll('.animate-in');
+    animatedElements.forEach((element, index) => {
+        element.style.animationDelay = `${index * 0.15}s`;
+    });
+
+    // Анимация шагов при скролле
+    const steps = document.querySelectorAll('.step');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animationPlayState = 'running';
+            }
+        });
+    }, { threshold: 0.1 });
+
+    steps.forEach(step => {
+        step.style.animationPlayState = 'paused';
+        observer.observe(step);
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,440 @@
+{% extends 'chapters/base.html' %}
+
+{% block title %}Модули курса - Cisco Networking Academy{% endblock %}
+
+{% block content %}
+<div class="content-section animate-in">
+    <div class="content-header">
+        <h1>Содержание курса</h1>
+        <p>Введение в сетевые технологии - полная программа обучения</p>
+    </div>
+
+    <div class="content-body">
+        <!-- Общий прогресс -->
+        {% if user.is_authenticated or test_mode %}
+        <div class="progress-card">
+            <div class="progress-header">
+                <h3>Общий прогресс курса</h3>
+                <div class="progress-percentage">{{ total_progress.progress_percentage }}%</div>
+            </div>
+            <div class="progress-info">
+                <span>Пройдено: {{ total_progress.completed_sections }}/{{ total_progress.total_sections }} разделов</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: {{ total_progress.progress_percentage }}%"></div>
+            </div>
+
+            {% if test_mode and not user.is_authenticated %}
+            <div class="demo-badge">
+                ✅ Демо-режим: прогресс сохраняется для тестового пользователя
+            </div>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="progress-card auth-prompt">
+            <div class="auth-icon">📊</div>
+            <h3>Отслеживание прогресса</h3>
+            <div style="margin-bottom: 1.5rem;"></div>  <!-- Добавляем отступ -->
+            <p>Войдите в систему, чтобы отслеживать свой прогресс обучения</p>
+            <div style="margin-top: 20px;"></div>
+            <a href="{% url 'login' %}" class="btn">
+                <span class="btn-icon">🔐</span>
+                Войти в систему
+            </a>
+        </div>
+        {% endif %}
+
+        <div class="section-header">
+            <h2>Модули обучения</h2>
+            <div class="section-meta">
+                Всего модулей: <strong>{{ modules_with_progress|length }}</strong>
+            </div>
+        </div>
+
+                <div class="items-grid">
+            {% for item in modules_with_progress %}
+            {% with module=item.module progress=item.progress %}
+            <a href="{% url 'module_detail' module.id %}" class="item-card animate-in delay-{% cycle '1' '2' '3' %}">
+                <div class="item-card-content">
+                    <div class="item-header">
+                        <div class="item-number">Модуль {{ module.number }}</div>
+                        <div class="item-stats">
+                            <span title="Количество глав">
+                                📖 {{ module.chapters.count }}
+                            </span>
+                            {% if user.is_authenticated or test_mode %}
+                            <span title="Прогресс по главам">
+                                <!-- Используем главы для расчета прогресса модуля -->
+                                {% with completed_chapters=item.completed_chapters_count total_chapters=module.chapters.count %}
+                                    {% if total_chapters > 0 %}
+                                        {% widthratio completed_chapters total_chapters 100 %}%
+                                    {% else %}
+                                        0%
+                                    {% endif %}
+                                {% endwith %}
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <h3>{{ module.title }}</h3>
+                    {% if module.description %}
+                    <p>{{ module.description|truncatewords:20 }}</p>
+                    {% endif %}
+
+                    {% if user.is_authenticated or test_mode %}
+                    <!-- Прогресс по главам для модуля -->
+                    <div class="progress-bar small">
+                        {% with completed_chapters=item.completed_chapters_count total_chapters=module.chapters.count %}
+                            {% if total_chapters > 0 %}
+                                {% widthratio completed_chapters total_chapters 100 as chapter_percentage %}
+                                <div class="progress-fill" style="width: {{ chapter_percentage }}%"></div>
+                            {% else %}
+                                <div class="progress-fill" style="width: 0%"></div>
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+
+                    <div class="item-meta">
+                        <span class="status-badge {% if item.is_completed %}completed{% elif item.completed_chapters_count > 0 %}in-progress{% else %}not-started{% endif %}">
+                            {% if item.is_completed %}
+                                <span class="status-icon">✓</span>Пройден
+                            {% elif item.completed_chapters_count > 0 %}
+                                <span class="status-icon">⏳</span>В процессе
+                            {% else %}
+                                <span class="status-icon">●</span>Не начат
+                            {% endif %}
+                        </span>
+                        <!-- Показываем прогресс по главам -->
+                        <span>
+                            {% with completed_chapters=item.completed_chapters_count total_chapters=module.chapters.count %}
+                                {% if total_chapters > 0 %}
+                                    {{ completed_chapters }}/{{ total_chapters }} глав
+                                {% else %}
+                                    0/0 глав
+                                {% endif %}
+                            {% endwith %}
+                        </span>
+                    </div>
+                    {% else %}
+                    <div class="item-meta">
+                        <span class="status-badge locked">
+                            <span class="status-icon">🔒</span>Войдите для отслеживания
+                        </span>
+                        <span>{{ module.chapters.count }} глав</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </a>
+            {% endwith %}
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<style>
+.progress-card {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.progress-card.auth-prompt {
+    text-align: center;
+    background: linear-gradient(135deg, var(--bg-primary), var(--bg-secondary));
+}
+
+.auth-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.8;
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.progress-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.progress-percentage {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--cisco-blue);
+}
+
+.progress-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: var(--bg-tertiary);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 1rem 0;
+}
+
+.progress-bar.small {
+    height: 6px;
+    margin: 1rem 0;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--cisco-blue), var(--cisco-orange));
+    border-radius: 4px;
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.demo-badge {
+    background: #e8f5e8;
+    padding: 0.75rem;
+    border-radius: var(--radius-md);
+    margin-top: 1rem;
+    font-size: 0.8rem;
+    text-align: center;
+    color: #2e7d32;
+    border: 1px solid #c8e6c9;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.section-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.section-meta {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.items-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 1.75rem;
+}
+
+.item-card {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    transition: var(--transition-normal);
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    position: relative;
+    overflow: hidden;
+}
+
+.item-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-lg);
+    border-color: transparent;
+}
+
+.item-card-content {
+    position: relative;
+    z-index: 1;
+}
+
+.item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.25rem;
+}
+
+.item-number {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--cisco-blue);
+    background: rgba(0, 80, 115, 0.08);
+    padding: 0.375rem 0.875rem;
+    border-radius: 20px;
+    letter-spacing: 0.02em;
+}
+
+.item-stats {
+    display: flex;
+    gap: 0.75rem;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.item-stats span {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+}
+
+.item-card h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+}
+
+.item-card p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.item-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border-light);
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: var(--transition-fast);
+}
+
+.status-icon {
+    font-size: 0.9rem;
+}
+
+.status-badge.completed {
+    background: #e8f5e8;
+    color: #2e7d32;
+    border: 1px solid #c8e6c9;
+}
+
+.status-badge.in-progress {
+    background: #fff3e0;
+    color: #ef6c00;
+    border: 1px solid #ffe0b2;
+}
+
+.status-badge.not-started {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-light);
+}
+
+.status-badge.locked {
+    background: #e3f2fd;
+    color: #1565c0;
+    border: 1px solid #bbdefb;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 2rem;
+    background: var(--cisco-blue);
+    color: white;
+    text-decoration: none;
+    border-radius: var(--radius-md);
+    border: none;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: var(--transition-normal);
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.btn:hover {
+    background: var(--cisco-blue-dark);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-icon {
+    font-size: 1.1rem;
+}
+
+@media (max-width: 768px) {
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .progress-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .progress-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .items-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .item-stats {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .item-meta {
+        flex-direction: column;
+        gap: 0.75rem;
+        align-items: flex-start;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Анимация появления карточек
+    const cards = document.querySelectorAll('.item-card');
+    cards.forEach((card, index) => {
+        card.style.animationDelay = `${index * 0.1}s`;
+    });
+
+    // Анимация появления элементов
+    const animatedElements = document.querySelectorAll('.animate-in');
+    animatedElements.forEach((element, index) => {
+        element.style.animationDelay = `${index * 0.1}s`;
+    });
+});
+</script>
+{% endblock %}

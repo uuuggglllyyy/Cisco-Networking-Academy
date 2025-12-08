@@ -1,0 +1,416 @@
+{% extends 'chapters/base.html' %}
+
+{% block title %}Email подтвержден - Cisco Networking Academy{% endblock %}
+
+{% block content %}
+<div class="success-container">
+    <div class="success-card animate-in">
+        <div class="success-visual">
+            <div class="success-icon">
+                <div class="icon-circle">
+                    <span class="cisco-icon">verified</span>
+                </div>
+                <div class="confetti">
+                    <div class="confetti-piece"></div>
+                    <div class="confetti-piece"></div>
+                    <div class="confetti-piece"></div>
+                    <div class="confetti-piece"></div>
+                    <div class="confetti-piece"></div>
+                    <div class="confetti-piece"></div>
+                    <div class="confetti-piece"></div>
+                    <div class="confetti-piece"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="success-content">
+            <h1 class="success-title">Email успешно подтвержден!</h1>
+            <p class="success-message">
+                Ваш аккаунт активирован. Теперь вы можете войти в систему и начать обучение
+                в Cisco Networking Academy.
+            </p>
+
+            <div class="success-features">
+                <div class="feature animate-in delay-1">
+                    <div class="feature-icon">
+                        <span class="cisco-icon">menu_book</span>
+                    </div>
+                    <div class="feature-content">
+                        <h3>Полный доступ к курсу</h3>
+                        <p>Изучайте все модули и разделы в удобном темпе</p>
+                    </div>
+                </div>
+                
+                <div class="feature animate-in delay-2">
+                    <div class="feature-icon">
+                        <span class="cisco-icon">smart_toy</span>
+                    </div>
+                    <div class="feature-content">
+                        <h3>Помощь AI-ассистента</h3>
+                        <p>Получайте персональные ответы на ваши вопросы</p>
+                    </div>
+                </div>
+                
+                <div class="feature animate-in delay-3">
+                    <div class="feature-icon">
+                        <span class="cisco-icon">forum</span>
+                    </div>
+                    <div class="feature-content">
+                        <h3>Обратная связь</h3>
+                        <p>Консультируйтесь с преподавателями и поддержкой</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="success-actions animate-in delay-4">
+                <a href="{% url 'login' %}" class="btn btn-primary btn-large">
+                    <span class="cisco-icon">login</span>
+                    Войти в систему
+                </a>
+                <a href="{% url 'module_list' %}" class="btn btn-outline">
+                    <span class="cisco-icon">rocket_launch</span>
+                    Начать обучение
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.success-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+    padding: 2rem;
+}
+
+.success-card {
+    background: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    padding: 3rem;
+    text-align: center;
+    max-width: 600px;
+    width: 100%;
+    border: 1px solid var(--border-light);
+    position: relative;
+    overflow: hidden;
+}
+
+.success-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--cisco-blue), var(--cisco-orange));
+}
+
+.success-visual {
+    margin-bottom: 2rem;
+}
+
+.success-icon {
+    position: relative;
+    display: inline-block;
+}
+
+.icon-circle {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #4caf50, #66bb6a);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2rem;
+    margin: 0 auto 1.5rem;
+    position: relative;
+    z-index: 2;
+    animation: iconPop 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.confetti {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 120px;
+    height: 120px;
+    transform: translate(-50%, -50%);
+}
+
+.confetti-piece {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 1px;
+    animation: confettiFall 1.5s ease-out forwards;
+}
+
+.confetti-piece:nth-child(1) { 
+    top: 10%; left: 20%; 
+    background: linear-gradient(45deg, var(--cisco-blue), var(--cisco-blue-light));
+    animation-delay: 0.1s; 
+}
+.confetti-piece:nth-child(2) { 
+    top: 20%; left: 80%; 
+    background: linear-gradient(45deg, var(--cisco-orange), #ff8a65);
+    animation-delay: 0.2s; 
+}
+.confetti-piece:nth-child(3) { 
+    top: 30%; left: 40%; 
+    background: linear-gradient(45deg, #4caf50, #66bb6a);
+    animation-delay: 0.3s; 
+}
+.confetti-piece:nth-child(4) { 
+    top: 10%; left: 60%; 
+    background: linear-gradient(45deg, #2196f3, #64b5f6);
+    animation-delay: 0.4s; 
+}
+.confetti-piece:nth-child(5) { 
+    top: 40%; left: 10%; 
+    background: linear-gradient(45deg, #ff9800, #ffb74d);
+    animation-delay: 0.5s; 
+}
+.confetti-piece:nth-child(6) { 
+    top: 20%; left: 90%; 
+    background: linear-gradient(45deg, #9c27b0, #ba68c8);
+    animation-delay: 0.6s; 
+}
+.confetti-piece:nth-child(7) { 
+    top: 50%; left: 30%; 
+    background: linear-gradient(45deg, #f44336, #ef5350);
+    animation-delay: 0.7s; 
+}
+.confetti-piece:nth-child(8) { 
+    top: 35%; left: 70%; 
+    background: linear-gradient(45deg, #607d8b, #90a4ae);
+    animation-delay: 0.8s; 
+}
+
+@keyframes iconPop {
+    0% {
+        transform: scale(0) rotate(-180deg);
+        opacity: 0;
+    }
+    70% {
+        transform: scale(1.1) rotate(10deg);
+    }
+    100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
+}
+
+@keyframes confettiFall {
+    0% {
+        transform: translateY(0) rotate(0deg) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(150px) rotate(360deg) scale(0);
+        opacity: 0;
+    }
+}
+
+.success-title {
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.success-message {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 2.5rem;
+    font-size: 1.05rem;
+}
+
+.success-features {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    margin-bottom: 2.5rem;
+}
+
+.feature {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    text-align: left;
+    padding: 1.5rem;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-light);
+    transition: var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+}
+
+.feature::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 3px;
+    height: 100%;
+    background: linear-gradient(to bottom, var(--cisco-blue), var(--cisco-orange));
+    opacity: 0;
+    transition: var(--transition-normal);
+}
+
+.feature:hover {
+    transform: translateX(8px);
+    box-shadow: var(--shadow-md);
+}
+
+.feature:hover::before {
+    opacity: 1;
+}
+
+.feature-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--bg-primary);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--cisco-blue);
+    font-size: 1.25rem;
+    flex-shrink: 0;
+    transition: var(--transition-normal);
+}
+
+.feature:hover .feature-icon {
+    background: var(--cisco-blue);
+    color: white;
+    transform: scale(1.1);
+}
+
+.feature-content {
+    flex: 1;
+}
+
+.feature-content h3 {
+    margin: 0 0 0.5rem 0;
+    color: var(--text-primary);
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+
+.feature-content p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.success-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-large {
+    padding: 1.125rem 2.5rem;
+    font-size: 1.05rem;
+}
+
+@media (max-width: 768px) {
+    .success-card {
+        padding: 2rem;
+        margin: 1rem;
+    }
+
+    .success-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .feature {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+        padding: 1.25rem;
+    }
+
+    .feature-content {
+        text-align: center;
+    }
+
+    .success-container {
+        padding: 1rem;
+        min-height: 70vh;
+    }
+
+    .success-title {
+        font-size: 1.5rem;
+    }
+
+    .feature-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .success-card {
+        padding: 1.5rem;
+    }
+    
+    .icon-circle {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+    }
+    
+    .btn-large {
+        padding: 1rem 2rem;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Анимация появления элементов с задержкой
+    const animatedElements = document.querySelectorAll('.animate-in');
+    animatedElements.forEach((element, index) => {
+        element.style.animationDelay = `${index * 0.15}s`;
+    });
+
+    // Анимация фич при скролле
+    const features = document.querySelectorAll('.feature');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animationPlayState = 'running';
+            }
+        });
+    }, { threshold: 0.1 });
+
+    features.forEach(feature => {
+        feature.style.animationPlayState = 'paused';
+        observer.observe(feature);
+    });
+
+    // Перезапуск конфетти при клике
+    const confettiContainer = document.querySelector('.confetti');
+    document.addEventListener('click', function() {
+        const pieces = confettiContainer.querySelectorAll('.confetti-piece');
+        pieces.forEach(piece => {
+            piece.style.animation = 'none';
+            void piece.offsetWidth; // Trigger reflow
+            piece.style.animation = `confettiFall 1.5s ease-out forwards`;
+        });
+    });
+});
+</script>
+{% endblock %}
